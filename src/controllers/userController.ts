@@ -2,10 +2,70 @@ import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user";
 
+export const getUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const users = await User.find();
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      users: users,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const deleteUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    const user = await User.findByIdAndDelete(id);
+    return res.status(200).json({
+      message: "User deleted successfully",
+      user: user,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const updateUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({
+        message: "User ID is required",
+      });
+    }
+    if (!req.body) {
+      return res.status(400).json({
+        message: "User data is required",
+      });
+    }
+    const user = await User.findByIdAndUpdate(id, req.body, { new: true });
+    return res.status(200).json({
+      message: "User updated successfully",
+      user: user,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 export const registerUser = async (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     const { name, email, password } = req.body as {
@@ -38,67 +98,39 @@ export const registerUser = async (
   }
 };
 
-
-export const getUsers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
+export const loginUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
 ) => {
-    try {
-        const users = await User.find();
-        return res.status(200).json({
-            message: "Users fetched successfully",
-            users: users
-        });
-    } catch (error) {
-        return next(error);
-    }
-}
+  const { email, password } = req.body as {
+    email: string;
+    password: string;
+  };
 
+  if (!email || !password) {
+    return res.status(400).json({
+      message: "Email and password are required",
+    });
+  }
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(401).json({
+      message: "Invalid email or password",
+    });
+  }
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
+    return res.status(401).json({
+      message: "Invalid email or password",
+    });
+  }
 
-export const deleteUser = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-) => {
-    try {
-        const { id } = req.params;
-        const user = await User.findByIdAndDelete(id);
-        return res.status(200).json({
-            message: "User deleted successfully",
-            user: user
-        }); 
-    } catch (error) {
-        return next(error);
-    }
-}
-
-
-export const updateUser = async (
-    req:Request,
-    res: Response,
-    next: NextFunction
-) =>  {
-
-    try {
-        const {id} = req.params
-        if(!id){
-            return res.status(400).json({
-                message: "User ID is required"
-            });
-        }
-        if(!req.body){
-            return res.status(400).json({
-                message: "User data is required"
-            });
-        }
-       const user = await User.findByIdAndUpdate(id,req.body, {new: true})
-        return res.status(200).json({
-            message: "User updated successfully",
-            user: user
-        });
-        
-    } catch (error) {
-        return next(error);
-    }
-}
+  try {
+    return res.status(200).json({
+      message: "Login successful",
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
