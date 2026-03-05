@@ -103,32 +103,43 @@ export const loginUser = async (
   res: Response,
   next: NextFunction,
 ) => {
-  const { email, password } = req.body as {
-    email: string;
-    password: string;
-  };
-
-  if (!email || !password) {
-    return res.status(400).json({
-      message: "Email and password are required",
-    });
-  }
-  const user = await User.findOne({ email });
-  if (!user) {
-    return res.status(401).json({
-      message: "Invalid email or password",
-    });
-  }
-  const isPasswordValid = await bcrypt.compare(password, user.password);
-  if (!isPasswordValid) {
-    return res.status(401).json({
-      message: "Invalid email or password",
-    });
-  }
-
   try {
+    const { email, password } = req.body as {
+      email: string;
+      password: string;
+    };
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Email and password are required",
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+    const user = await User.findOne({ email: normalizedEmail });
+    if (!user) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: "Invalid email or password",
+      });
+    }
+
     return res.status(200).json({
       message: "Login successful",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      auth: {
+        userId: user._id,
+      },
     });
   } catch (error) {
     return next(error);
