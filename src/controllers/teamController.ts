@@ -108,6 +108,15 @@ export const updateTeam = async (
   }
 };
 
+const validateMemberId = (memberId: string, res: Response) => {
+  if(!mongoose.Types.ObjectId.isValid(memberId as string)){
+    return res.status(400).json({
+      message: "Invalid member ID",
+    });
+  }
+  return true;
+}
+
 export const addMemberToTeam = async (
   req: Request,
   res: Response,
@@ -120,7 +129,12 @@ export const addMemberToTeam = async (
         message: "Team ID is required",
       });
     }
+
     const { memberId } = req.body;
+    // validate memberId is a valid mongoose object id
+    if(!validateMemberId(memberId, res)){
+      return;
+    }
     if (!memberId) {
       return res.status(400).json({
         message: "Member ID is required",
@@ -153,10 +167,9 @@ export const removeMemberFromTeam = async (
       });
     }
     // validate memberId is a valid mongoose object id
-    if(!mongoose.Types.ObjectId.isValid(memberId as string)){
-      return res.status(400).json({
-        message: "Invalid member ID",
-      });
+    
+    if(!validateMemberId(memberId as string, res)){
+      return;
     }
     if (!memberId) {
       return res.status(400).json({
