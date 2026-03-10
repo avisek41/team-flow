@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
 import User from "../models/user";
+import mongoose from "mongoose";
 
 export const getUsers = async (
   req: Request,
@@ -140,6 +141,38 @@ export const loginUser = async (
       auth: {
         userId: user._id,
       },
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const getUserById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { id } = req.params;
+    if(!id){
+      return res.status(400).json({
+        message: "User ID is required",
+      });
+    }
+    if(!mongoose.Types.ObjectId.isValid(id as string)){
+      return res.status(400).json({
+        message: "Invalid user ID",
+      });
+    }
+    const user = await User.findById(id);
+    if(!user){
+      return res.status(400).json({
+        message: "User not found",
+      });
+    }
+    return res.status(200).json({
+      message: "User fetched successfully",
+      user: user,
     });
   } catch (error) {
     return next(error);
