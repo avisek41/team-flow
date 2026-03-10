@@ -13,7 +13,7 @@ export const authMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    const userIdHeader = req.headers["x-user-id"];
+    const userIdHeader = req.headers["user-id"];
     const userId = Array.isArray(userIdHeader) ? userIdHeader[0] : userIdHeader;
 
     if (!userId || typeof userId !== "string") {

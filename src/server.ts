@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import userRoutes from "./routes/userRoutes";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler";
 import { requestLogger } from "./middlewares/requestLogger";
+import teamRoutes from "./routes/team.routes";
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(requestLogger);
 
     
 app.use("/api/v1", userRoutes);
+app.use("/api/v1", teamRoutes);
 app.use("/health", healthRoutes);
 
 app.use(notFoundHandler);
