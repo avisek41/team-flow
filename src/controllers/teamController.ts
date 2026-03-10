@@ -152,6 +152,12 @@ export const removeMemberFromTeam = async (
         message: "Team ID is required",
       });
     }
+    // validate memberId is a valid mongoose object id
+    if(!mongoose.Types.ObjectId.isValid(memberId as string)){
+      return res.status(400).json({
+        message: "Invalid member ID",
+      });
+    }
     if (!memberId) {
       return res.status(400).json({
         message: "Member ID is required",
@@ -165,7 +171,7 @@ export const removeMemberFromTeam = async (
       });
     }
     team.members = team.members?.filter(
-      (member) => member.toString() !== memberId
+      (member) => member?.toString() !== memberId
     );
 
     await team?.save();
