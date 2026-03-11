@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import mongoose from "mongoose";
-import User from "../models/user";
+import jwt from "jsonwebtoken";
 
 type AuthUser = {
   userId: string;
@@ -13,37 +12,37 @@ export const authMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    const userIdHeader = req.headers["user-id"];
-    const userId = Array.isArray(userIdHeader) ? userIdHeader[0] : userIdHeader;
-
-    if (!userId || typeof userId !== "string") {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return res.status(401).json({
-        message: "Unauthorized. Missing x-user-id header.",
+        message: "Unauthorized. Missing or invalid Authorization header.",
       });
     }
 
-    if (!mongoose.Types.ObjectId.isValid(userId)) {
-      return res.status(401).json({
-        message: "Unauthorized. Invalid user id format.",
+    const token = authHeader.split(" ")[1];
+    const jwtAccessSecret = process.env.JWT_ACCESS_SECRET;
+    if (!jwtAccessSecret) {
+      return res.status(500).json({
+        message: "JWT access secret is not configured.",
       });
     }
 
-    const user = await User.findById(userId).select("_id email");
-    if (!user) {
+    const payload = jwt.verify(token, jwtAccessSecret) as Partial<AuthUser>;
+    if (!payload.userId || !payload.email) {
       return res.status(401).json({
-        message: "Unauthorized. User not found.",
+        message: "Unauthorized. Invalid token payload.",
       });
     }
 
     (req as Request & { user?: AuthUser }).user = {
-      userId: user._id.toString(),
-      email: user.email,
+      userId: payload.userId,
+      email: payload.email,
     };
 
     return next();
   } catch {
-    return res.status(500).json({
-      message: "Authentication check failed.",
+    return res.status(401).json({
+      message: "Authentication failed.",
     });
   }
 };

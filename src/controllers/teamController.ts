@@ -2,41 +2,66 @@ import { NextFunction, Request, Response } from "express";
 import Team from "../models/team";
 import mongoose from "mongoose";
 
+type AuthUser = {
+  userId: string;
+  email: string;
+};
+
 export const createTeam = async (
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const { title, description, members, owner, startDate } = req.body as {
+    const owner = (req as Request & { user?: AuthUser }).user?.userId;
+    const { title, description, members, startDate } = req.body as {
       title: string;
       description: string;
       members: string[];
-      owner: string;
-      startDate: Date;
+      startDate: string | Date;
     };
-    if (!title || !description || !members || !startDate) {
-      return res.status(400).json({
-        message: "All fields are required",
+
+    if (!owner || !mongoose.Types.ObjectId.isValid(owner)) {
+      return res.status(401).json({
+        message: "Unauthorized user.",
       });
     }
+
+    const normalizedTitle = title.trim();
+    const normalizedDescription = description.trim();
+
+    if (!normalizedTitle || !normalizedDescription) {
+      return res.status(400).json({
+        message: "Title, description  are required.",
+      });
+    }
+
     if (!members.every((member) => mongoose.Types.ObjectId.isValid(member))) {
       return res.status(400).json({
         message: "Invalid member IDs",
       });
     }
+
+    const parsedStartDate = new Date(startDate);
+    if (Number.isNaN(parsedStartDate.getTime())) {
+      return res.status(400).json({
+        message: "Invalid start date.",
+      });
+    }
+
     const team = new Team({
-      title,
-      description,
+      title: normalizedTitle,
+      description: normalizedDescription,
       members,
       owner,
-      startDate,
+      startDate: parsedStartDate,
     });
+
     await team.save();
+
     return res.status(201).json({
       message: "Team created successfully",
-      team: team,
-      owner: owner,
+      team,
     });
   } catch (error) {
     return next(error);
@@ -109,13 +134,13 @@ export const updateTeam = async (
 };
 
 const validateMemberId = (memberId: string, res: Response) => {
-  if(!mongoose.Types.ObjectId.isValid(memberId as string)){
+  if (!mongoose.Types.ObjectId.isValid(memberId as string)) {
     return res.status(400).json({
       message: "Invalid member ID",
     });
   }
   return true;
-}
+};
 
 export const addMemberToTeam = async (
   req: Request,
@@ -132,7 +157,7 @@ export const addMemberToTeam = async (
 
     const { memberId } = req.body;
     // validate memberId is a valid mongoose object id
-    if(!validateMemberId(memberId, res)){
+    if (!validateMemberId(memberId, res)) {
       return;
     }
     if (!memberId) {
@@ -152,13 +177,11 @@ export const addMemberToTeam = async (
   }
 };
 
-
 export const removeMemberFromTeam = async (
   req: Request,
   res: Response,
   next: NextFunction,
-) =>{
-
+) => {
   try {
     const { id, memberId } = req.params;
     if (!id) {
@@ -167,8 +190,8 @@ export const removeMemberFromTeam = async (
       });
     }
     // validate memberId is a valid mongoose object id
-    
-    if(!validateMemberId(memberId as string, res)){
+
+    if (!validateMemberId(memberId as string, res)) {
       return;
     }
     if (!memberId) {
@@ -184,14 +207,14 @@ export const removeMemberFromTeam = async (
       });
     }
     team.members = team.members?.filter(
-      (member) => member?.toString() !== memberId
+      (member) => member?.toString() !== memberId,
     );
 
     await team?.save();
     return res.status(200).json({
       message: "Member removed from team successfully",
       team: team,
-    }); 
+    });
   } catch (error) {
     return next(error);
   }

@@ -1,11 +1,30 @@
 import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import User from "../models/user";
 import mongoose from "mongoose";
 
 type AuthUser = {
   userId: string;
   email: string;
+};
+
+const createAccessToken = (user: { userId: string; email: string }) => {
+  const jwtAccessSecret = process.env.JWT_ACCESS_SECRET;
+  if (!jwtAccessSecret) {
+    throw new Error("JWT access secret is not configured.");
+  }
+
+  return jwt.sign(user, jwtAccessSecret, { expiresIn: "2h" });
+};
+
+const createRefreshToken = (user: { userId: string; email: string }) => {
+  const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+  if (!jwtRefreshSecret) {
+    throw new Error("JWT refresh secret is not configured.");
+  }
+
+  return jwt.sign(user, jwtRefreshSecret, { expiresIn: "7d" });
 };
 
 export const getUsers = async (
@@ -136,6 +155,13 @@ export const loginUser = async (
       });
     }
 
+    const tokenPayload = {
+      userId: user._id.toString(),
+      email: user.email,
+    };
+    const accessToken = createAccessToken(tokenPayload);
+    const refreshToken = createRefreshToken(tokenPayload);
+
     return res.status(200).json({
       message: "Login successful",
       user: {
@@ -143,9 +169,49 @@ export const loginUser = async (
         name: user.name,
         email: user.email,
       },
-      auth: {
-        userId: user._id,
-      },
+      accessToken,
+      refreshToken,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+export const refreshAccessToken = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { refreshToken } = req.body as { refreshToken?: string };
+    if (!refreshToken) {
+      return res.status(400).json({
+        message: "Refresh token is required.",
+      });
+    }
+
+    const jwtRefreshSecret = process.env.JWT_REFRESH_SECRET;
+    if (!jwtRefreshSecret) {
+      return res.status(500).json({
+        message: "JWT refresh secret is not configured.",
+      });
+    }
+
+    const payload = jwt.verify(refreshToken, jwtRefreshSecret) as Partial<AuthUser>;
+    if (!payload.userId || !payload.email) {
+      return res.status(401).json({
+        message: "Invalid refresh token.",
+      });
+    }
+
+    const accessToken = createAccessToken({
+      userId: payload.userId,
+      email: payload.email,
+    });
+
+    return res.status(200).json({
+      message: "Access token refreshed successfully",
+      accessToken,
     });
   } catch (error) {
     return next(error);
