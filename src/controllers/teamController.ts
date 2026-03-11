@@ -91,15 +91,26 @@ export const deleteTeam = async (
 ) => {
   try {
     const { id } = req.params;
+    const owner = (req as Request & { user?: AuthUser }).user?.userId;
     if (!id) {
       return res.status(400).json({
         message: "Team ID is required",
       });
     }
-    const team = await Team.findByIdAndDelete(id);
+    const team = await Team.findById(id);
+    if (!team) {
+      return res.status(400).json({
+        message: "Team not found",
+      });
+    }
+    if (team.owner?.toString() !== owner) {
+      return res.status(401).json({
+        message: "Unauthorized user.",
+      });
+    }
+    await team.deleteOne();
     return res.status(200).json({
       message: "Team deleted successfully",
-      team: team,
     });
   } catch (error) {
     return next(error);
