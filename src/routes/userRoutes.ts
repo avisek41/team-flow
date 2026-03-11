@@ -13,7 +13,7 @@ userRoutes.use(authMiddleware);
 userRoutes.get("/get",  getUsers);
 userRoutes.delete("/delete/:id", deleteUser);
 userRoutes.put("/update/:id", updateUser);
-userRoutes.get("/get-user-by-id/:id", getUserById);
+userRoutes.get("/get-user-by-id", getUserById);
 
 export default userRoutes;
 
