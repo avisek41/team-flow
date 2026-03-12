@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import Team from "../models/team";
 import mongoose from "mongoose";
+import User from "../models/user";
 
 type AuthUser = {
   userId: string;
@@ -74,7 +75,10 @@ export const getTeams = async (
   next: NextFunction,
 ) => {
   try {
-    const teams = await Team.find();
+    // only owner and members of the team can see the team
+    const owner = (req as Request & { user?: AuthUser }).user?.userId;
+    const teams = await Team.find({ $or: [{ owner: owner }, { members: owner }] });
+
     return res.status(200).json({
       message: "Teams fetched successfully",
       teams: teams,
@@ -190,9 +194,15 @@ export const addMemberToTeam = async (
         message: "Member ID is required",
       });
     }
-    const team = await Team.findById(id);
-    team?.members?.push(memberId);
-    await team?.save();
+    // the memberId should a valid user id
+    const user = await User.findById(memberId);
+    if (!user) {
+      return res.status(400).json({
+        message: "User not found",
+      });
+    }
+    // here we need to add the teamId to which the user is being added as a member
+    const team = await Team.findByIdAndUpdate(id, { $push: { members: memberId } }, { new: true });
     return res.status(200).json({
       message: "Member added to team successfully",
       team: team,
