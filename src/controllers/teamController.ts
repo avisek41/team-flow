@@ -124,9 +124,17 @@ export const updateTeam = async (
 ) => {
   try {
     const { id } = req.params;
+   
+    const owner = (req as Request & { user?: AuthUser }).user?.userId;
     if (!id) {
       return res.status(400).json({
         message: "Team ID is required",
+      });
+    }
+    const existingTeam = await Team.findById(id);
+    if (!existingTeam) {
+      return res.status(400).json({
+        message: "Team not found",
       });
     }
     if (!req.body) {
@@ -134,6 +142,12 @@ export const updateTeam = async (
         message: "Team data is required",
       });
     }
+    if (existingTeam?.owner?.toString() !== owner) {
+      return res.status(401).json({
+        message: "Unauthorized user.",
+      });
+    }
+
     const team = await Team.findByIdAndUpdate(id, req.body, { new: true });
     return res.status(200).json({
       message: "Team updated successfully",
