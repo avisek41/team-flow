@@ -194,7 +194,7 @@ export const refreshAccessToken = async (
     if (!jwtRefreshSecret) {
       return res.status(500).json({
         message: "JWT refresh secret is not configured.",
-      });
+      });2
     }
 
     const payload = jwt.verify(refreshToken, jwtRefreshSecret) as Partial<AuthUser>;
