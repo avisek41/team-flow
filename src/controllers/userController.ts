@@ -15,7 +15,7 @@ const createAccessToken = (user: { userId: string; email: string }) => {
     throw new Error("JWT access secret is not configured.");
   }
 
-  return jwt.sign(user, jwtAccessSecret, { expiresIn: "15m" });
+  return jwt.sign(user, jwtAccessSecret, { expiresIn: "5m" });
 };
 
 const createRefreshToken = (user: { userId: string; email: string }) => {
