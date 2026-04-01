@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
-import Team from "../models/team";
 import mongoose from "mongoose";
+import Team from "../models/team";
 import User from "../models/user";
 
 type AuthUser = {
@@ -43,6 +43,14 @@ export const createTeam = async (
       });
     }
 
+    // ✅ Ensure owner is always part of members
+    const uniqueMembersSet = new Set([
+      ...members.map((m) => m.toString()),
+      owner.toString(),
+    ]);
+
+    const finalMembers = Array.from(uniqueMembersSet);
+
     const parsedStartDate = new Date(startDate);
     if (Number.isNaN(parsedStartDate.getTime())) {
       return res.status(400).json({
@@ -53,7 +61,7 @@ export const createTeam = async (
     const team = new Team({
       title: normalizedTitle,
       description: normalizedDescription,
-      members,
+      members: finalMembers,
       owner,
       startDate: parsedStartDate,
     });
@@ -178,9 +186,21 @@ export const addMemberToTeam = async (
 ) => {
   try {
     const { id } = req.params;
+    
     if (!id) {
       return res.status(400).json({
         message: "Team ID is required",
+      });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id as string)) {
+      return res.status(400).json({
+        message: "Invalid team ID",
+      });
+    }
+    const getTeam = await Team.findById(id);
+    if (!getTeam) {
+      return res.status(400).json({
+        message: "Team not found",
       });
     }
 
