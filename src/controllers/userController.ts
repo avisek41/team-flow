@@ -1,8 +1,8 @@
-import { NextFunction, Request, Response } from "express";
 import bcrypt from "bcryptjs";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
-import User from "../models/user";
 import mongoose from "mongoose";
+import User from "../models/user";
 
 type AuthUser = {
   userId: string;

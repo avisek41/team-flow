@@ -1,12 +1,12 @@
-import express from "express";
-import healthRoutes from "./routes/health.routes";
-import { connectDB } from "./config/db";
 import dotenv from "dotenv";
-import userRoutes from "./routes/userRoutes";
+import express from "express";
+import { connectDB } from "./config/db";
 import { errorHandler, notFoundHandler } from "./middlewares/errorHandler";
 import { requestLogger } from "./middlewares/requestLogger";
-import teamRoutes from "./routes/team.routes";
+import healthRoutes from "./routes/health.routes";
 import taskRoutes from "./routes/task.routes";
+import teamRoutes from "./routes/team.routes";
+import userRoutes from "./routes/userRoutes";
 
 dotenv.config();
 
@@ -18,7 +18,7 @@ app.use(requestLogger);
 
     
 app.use("/api/v1", userRoutes);
-app.use("/api/v1", teamRoutes);
+app.use("/api/v1/teams", teamRoutes); 
 app.use("/api/v1", taskRoutes);
 app.use("/health", healthRoutes);
 
