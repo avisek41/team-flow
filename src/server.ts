@@ -7,19 +7,20 @@ import healthRoutes from "./routes/health.routes";
 import taskRoutes from "./routes/task.routes";
 import teamRoutes from "./routes/team.routes";
 import userRoutes from "./routes/userRoutes";
-
 dotenv.config();
+
+
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+app.use("/api/v1/tasks", taskRoutes);
 app.use(express.json());
 app.use(requestLogger);
 
     
-app.use("/api/v1", userRoutes);
-app.use("/api/v1/teams", teamRoutes); 
-app.use("/api/v1", taskRoutes);
+app.use("/api/v1/users", userRoutes);     // login/register
+app.use("/api/v1/teams", teamRoutes);
 app.use("/health", healthRoutes);
 
 app.use(notFoundHandler);

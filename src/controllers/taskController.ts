@@ -3,6 +3,9 @@ import mongoose, { isValidObjectId } from "mongoose";
 import Task from "../models/task";
 import Team from "../models/team";
 import User from "../models/user";
+import { getPagination } from "../utils/pagination";
+import { buildTaskFilters } from "../utils/taskFilter";
+import { buildTaskSort } from "../utils/taskSort";
 
 type AuthUser = {
   userId: string;
@@ -476,6 +479,7 @@ export const getAuthUserId = (req: Request): string | undefined => {
   return (req as Request & { user?: AuthUser }).user?.userId;
 };
 
+
 export const searchTasksGlobal = async (
   req: Request,
   res: Response,
@@ -483,62 +487,72 @@ export const searchTasksGlobal = async (
 ) => {
   try {
     const currentUserId = getAuthUserId(req);
-    const { search, page = 1, limit = 10 } = req.query as {
-      search?: string;
-      page?: number;
-      limit?: number;
-    };
 
-    // 🔐 Validate user
+    const {
+      search,
+      page = 1,
+      limit = 10,
+      status,
+      priority,
+      assignedTo,
+      dueFrom,
+      dueTo,
+      sortBy,
+      sortOrder,
+    } = req.query as any;
+
     if (!isValidObjectId(currentUserId)) {
       return res.status(401).json({ message: "Unauthorized user." });
     }
 
-    // 🔍 Validate search
     if (!search?.trim()) {
       return res.status(400).json({
         message: "Search query is required.",
       });
     }
 
-    const skip = (Number(page) - 1) * Number(limit);
-
-    // 🧠 Get all teams user belongs to (ONE query)
+    // 🧠 Teams
     const teams = await Team.find({
       $or: [{ owner: currentUserId }, { members: currentUserId }],
     }).select("_id");
 
     const teamIds = teams.map((t) => t._id);
 
-    // 🚀 Search across ALL user's tasks
+    // 🔧 Helpers
+    const { skip, page: pg, limit: lm } = getPagination(page, limit);
+
+    const filters = buildTaskFilters({
+      teamIds,
+      search,
+      status,
+      priority,
+      assignedTo,
+      dueFrom,
+      dueTo,
+    });
+
+    const sortOptions = buildTaskSort(sortBy, sortOrder);
+
+    // 🚀 Query
     const [tasks, total] = await Promise.all([
-      Task.find(
-        {
-          teamId: { $in: teamIds },
-          $text: { $search: search },
-        },
-        {
-          score: { $meta: "textScore" },
-        },
-      )
-        .sort({ score: { $meta: "textScore" } }) // 🔥 relevance
+      Task.find(filters, {
+        score: { $meta: "textScore" },
+      })
+        .sort(sortOptions)
         .skip(skip)
-        .limit(Number(limit))
+        .limit(lm)
         .lean(),
 
-      Task.countDocuments({
-        teamId: { $in: teamIds },
-        $text: { $search: search },
-      }),
+      Task.countDocuments(filters),
     ]);
 
     return res.status(200).json({
       message: "Search results fetched",
       meta: {
         total,
-        page: Number(page),
-        limit: Number(limit),
-        totalPages: Math.ceil(total / Number(limit)),
+        page: pg,
+        limit: lm,
+        totalPages: Math.ceil(total / lm),
       },
       tasks,
     });
@@ -546,3 +560,74 @@ export const searchTasksGlobal = async (
     return next(error);
   }
 };
+
+// export const searchTasksGlobal = async (
+//   req: Request,
+//   res: Response,
+//   next: NextFunction,
+// ) => {
+//   try {
+//     const currentUserId = getAuthUserId(req);
+//     const { search, page = 1, limit = 10 } = req.query as {
+//       search?: string;
+//       page?: number;
+//       limit?: number;
+//     };
+
+//     // 🔐 Validate user
+//     if (!isValidObjectId(currentUserId)) {
+//       return res.status(401).json({ message: "Unauthorized user." });
+//     }
+
+//     // 🔍 Validate search
+//     if (!search?.trim()) {
+//       return res.status(400).json({
+//         message: "Search query is required.",
+//       });
+//     }
+
+//     const skip = (Number(page) - 1) * Number(limit);
+
+//     // 🧠 Get all teams user belongs to (ONE query)
+//     const teams = await Team.find({
+//       $or: [{ owner: currentUserId }, { members: currentUserId }],
+//     }).select("_id");
+
+//     const teamIds = teams.map((t) => t._id);
+
+//     // 🚀 Search across ALL user's tasks
+//     const [tasks, total] = await Promise.all([
+//       Task.find(
+//         {
+//           teamId: { $in: teamIds },
+//           $text: { $search: search },
+//         },
+//         {
+//           score: { $meta: "textScore" },
+//         },
+//       )
+//         .sort({ score: { $meta: "textScore" } }) // 🔥 relevance
+//         .skip(skip)
+//         .limit(Number(limit))
+//         .lean(),
+
+//       Task.countDocuments({
+//         teamId: { $in: teamIds },
+//         $text: { $search: search },
+//       }),
+//     ]);
+
+//     return res.status(200).json({
+//       message: "Search results fetched",
+//       meta: {
+//         total,
+//         page: Number(page),
+//         limit: Number(limit),
+//         totalPages: Math.ceil(total / Number(limit)),
+//       },
+//       tasks,
+//     });
+//   } catch (error) {
+//     return next(error);
+//   }
+// };
