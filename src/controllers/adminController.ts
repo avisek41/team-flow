@@ -10,6 +10,12 @@ const removeProtectedFields = (body: any) => {
   return data;
 };
 
+/** Express 5 types params as string | string[]; normalize to a single string. */
+const paramAsString = (value: string | string[] | undefined): string => {
+  if (Array.isArray(value)) return value[0] ?? "";
+  return value ?? "";
+};
+
 const validateCityIdInBody = (body: any, table: string) => {
   if (table === "cities") {
     if (body.id && !isSupportedCityId(body.id)) {
@@ -91,7 +97,7 @@ export const createResource = (table: string) => async (req: Request, res: Respo
 
 export const updateResource = (table: string) => async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = paramAsString(req.params.id);
     const updateData = removeProtectedFields(req.body);
 
     if (Object.keys(updateData).length === 0) {
@@ -138,7 +144,7 @@ export const updateResource = (table: string) => async (req: Request, res: Respo
 
 export const deleteResource = (table: string) => async (req: Request, res: Response) => {
   try {
-    const { id } = req.params;
+    const id = paramAsString(req.params.id);
 
     if (table === "cities" && !isSupportedCityId(id)) {
       return res.status(400).json({
