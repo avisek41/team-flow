@@ -1,4 +1,6 @@
 node_modules
 .env
+*.env
+dynamic-ui-backend.env
 npm-debug.log*
 dist

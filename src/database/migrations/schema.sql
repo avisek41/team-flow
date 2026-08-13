@@ -20,7 +20,7 @@ CREATE TABLE cities (
 -- 2. City Greetings
 CREATE TABLE city_greetings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
     phase_id VARCHAR(50) NOT NULL, -- morning, afternoon, evening, night
     line1 VARCHAR(255) NOT NULL,
     line2 VARCHAR(255) NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE city_greetings (
 -- 3. City Salary Messages
 CREATE TABLE city_salary_messages (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
     salary_cycle_id VARCHAR(50) NOT NULL, -- premium, savings
     message VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -43,7 +43,7 @@ CREATE TABLE city_salary_messages (
 -- 4. Local Spotlights
 CREATE TABLE local_spotlights (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE UNIQUE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE UNIQUE,
     emoji VARCHAR(10) NOT NULL,
     title VARCHAR(255) NOT NULL,
     sub VARCHAR(255) NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE local_spotlights (
 -- 5. UI Labels
 CREATE TABLE ui_labels (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE UNIQUE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE UNIQUE,
     offers_section VARCHAR(100),
     categories_section VARCHAR(100),
     trending_section VARCHAR(100),
@@ -72,7 +72,7 @@ CREATE TABLE ui_labels (
 -- 6. City Categories
 CREATE TABLE city_categories (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
     phase_id VARCHAR(50) NOT NULL, -- morning, afternoon, evening, night
     emoji VARCHAR(10) NOT NULL,
     label VARCHAR(100) NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE city_categories (
 -- 7. Trending Tags
 CREATE TABLE trending_tags (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
     tag_name VARCHAR(255) NOT NULL,
     display_order INTEGER DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -95,7 +95,7 @@ CREATE TABLE trending_tags (
 -- 8. Restaurants
 CREATE TABLE restaurants (
     id VARCHAR(50) PRIMARY KEY,
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
     emoji VARCHAR(10),
     name VARCHAR(255) NOT NULL,
     rating VARCHAR(10),
@@ -136,10 +136,15 @@ CREATE TABLE salary_cycles (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- 11. Festival Overlays
+-- 11. Festival Overlays (calendar-based; city_id NULL = all cities)
 CREATE TABLE festival_overlays (
     id VARCHAR(50) PRIMARY KEY,
     active BOOLEAN DEFAULT false,
+    enabled BOOLEAN DEFAULT true,
+    start_date DATE,
+    end_date DATE,
+    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    priority INTEGER DEFAULT 0,
     detection VARCHAR(255),
     color_overrides JSONB,
     banner JSONB,
@@ -163,7 +168,7 @@ CREATE TABLE festival_categories (
 CREATE TABLE festival_greetings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     festival_id VARCHAR(50) REFERENCES festival_overlays(id) ON DELETE CASCADE,
-    city_id VARCHAR(50) REFERENCES cities(id) ON DELETE CASCADE,
+    city_id VARCHAR(50) NOT NULL REFERENCES cities(id) ON DELETE CASCADE,
     greeting VARCHAR(255) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),

@@ -1,25 +1,38 @@
-import { Router } from 'express';
-// import { adminAuth } from '../middlewares/adminAuth';
-import { createResource, updateResource, deleteResource } from '../controllers/adminController';
+import { Router } from "express";
+import { adminAuth } from "../middlewares/adminAuth";
+import {
+  createResource,
+  updateResource,
+  deleteResource,
+  listResource,
+} from "../controllers/adminController";
 
 const router = Router();
 
-// router.use(adminAuth);
+router.use(adminAuth);
 
 const resources = [
-    { path: '/cities', table: 'cities' },
-    { path: '/categories', table: 'city_categories' },
-    { path: '/restaurants', table: 'restaurants' },
-    { path: '/day-phases', table: 'day_phases' },
-    { path: '/salary-cycles', table: 'salary_cycles' },
-    { path: '/festivals', table: 'festival_overlays' }
+  { path: "/cities", table: "cities" },
+  { path: "/categories", table: "city_categories" },
+  { path: "/restaurants", table: "restaurants" },
+  { path: "/greetings", table: "city_greetings" },
+  { path: "/salary-messages", table: "city_salary_messages" },
+  { path: "/spotlights", table: "local_spotlights" },
+  { path: "/ui-labels", table: "ui_labels" },
+  { path: "/trending-tags", table: "trending_tags" },
+  { path: "/day-phases", table: "day_phases" },
+  { path: "/salary-cycles", table: "salary_cycles" },
+  { path: "/festivals", table: "festival_overlays" },
+  { path: "/festival-categories", table: "festival_categories" },
+  { path: "/festival-greetings", table: "festival_greetings" },
 ];
 
-resources.forEach(r => {
-    router.post(r.path, createResource(r.table));
-    router.put(`${r.path}/:id`, updateResource(r.table));
-    router.patch(`${r.path}/:id`, updateResource(r.table));
-    router.delete(`${r.path}/:id`, deleteResource(r.table));
+resources.forEach((r) => {
+  router.get(r.path, listResource(r.table));
+  router.post(r.path, createResource(r.table));
+  router.put(`${r.path}/:id`, updateResource(r.table));
+  router.patch(`${r.path}/:id`, updateResource(r.table));
+  router.delete(`${r.path}/:id`, deleteResource(r.table));
 });
 
 export default router;

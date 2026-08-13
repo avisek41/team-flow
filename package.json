@@ -8,6 +8,8 @@
     "start": "node dist/server.js",
     "nodemon": "nodemon --watch src --ext ts --exec \"ts-node src/server.ts\"",
     "dev": "nodemon --watch src --ext ts --exec \"ts-node src/server.ts\"",
+    "seed": "ts-node src/database/seed/seed.ts",
+    "seed:build": "python3 src/database/seed/build_seed.py",
     "test": "echo \"No tests configured yet\""
   },
   "keywords": [],

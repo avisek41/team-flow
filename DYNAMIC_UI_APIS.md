@@ -2,74 +2,118 @@
 
 Base URL (Local): `http://localhost:3000`
 
----
+Supported cities (exact IDs only):
 
-## 📱 Mobile App (Main Endpoint)
-This is the core endpoint that your React Native app will call. It dynamically merges the city data, day phase, active festivals, and salary cycles into one unified JSON configuration.
+- `ahmedabad` → Ahmedabad, Gujarat
+- `mumbai` → Mumbai, Maharashtra
+- `odisha` → Bhubaneswar, Odisha
+- `delhi` → Delhi, Delhi
+- `bengaluru` → Bengaluru, Karnataka
+- `hyderabad` → Hyderabad, Telangana
 
-- **URL:** `GET /api/v1/ui-config`
-- **Query Parameters:**
-  - `city_id` (required): e.g. `mumbai`, `odisha`, `ahmedabad`
-  - `client_time` (optional): ISO timestamp (e.g. `2026-07-02T15:00:00Z`). Defaults to server time if omitted.
-  - `day_of_month` (optional): `1` to `31`. Defaults to the current day.
-- **Example:**
-  `GET http://localhost:3000/api/v1/ui-config?city_id=mumbai&day_of_month=28`
+Architecture: **React Native → Express → Supabase**. Mobile never talks to PostgREST directly.
 
 ---
 
-## 🌍 Public Resource APIs (Read-Only)
-These endpoints are completely public and can be fetched by anyone to see the raw database records.
+## Mobile App (Primary Endpoint)
 
-**1. Get All Data Combined**
-- `GET /api/v1/public/all`
-  *(Returns everything: cities, restaurants, categories, day_phases, salary_cycles, and festivals in one single JSON payload)*
+`GET /api/v1/ui-config`
 
-**2. Individual Resources**
-- `GET /api/v1/public/cities` - Get all cities and their configurations
-- `GET /api/v1/public/restaurants` - Get all restaurants
-- `GET /api/v1/public/categories` - Get all city categories
-- `GET /api/v1/public/day-phases` - Get morning/afternoon/evening/night configurations
-- `GET /api/v1/public/salary-cycles` - Get salary cycle configurations
-- `GET /api/v1/public/festivals` - Get active festival overlays
+### Query parameters
 
----
+| Param | Required | Notes |
+|-------|----------|-------|
+| `city_id` | **Yes** | Must be one of the 6 supported IDs. **No default city.** |
+| `client_time` | No | ISO timestamp used for day-phase + festival calendar date |
+| `day_of_month` | No | 1–31; salary cycle if omitted uses date from `client_time` / now |
 
-## 🛠️ Admin APIs (Create / Update / Delete)
-These endpoints allow you to modify the database. *(Note: The token requirement has been removed per your request, so these are currently open for testing!)*
+### Salary cycle (fixed)
 
-All admin endpoints follow the same pattern for the following resources:
-- `/admin/v1/cities`
-- `/admin/v1/categories`
-- `/admin/v1/restaurants`
-- `/admin/v1/day-phases`
-- `/admin/v1/salary-cycles`
-- `/admin/v1/festivals`
+| Days | Cycle |
+|------|-------|
+| 1–5 | `premium` |
+| 6–24 | `normal` |
+| 25–31 | `savings` |
 
-### Create a Resource
-- **Method:** `POST`
-- **Example URL:** `POST /admin/v1/restaurants`
-- **Body:** JSON object with the properties for the new resource.
-```json
-{
-  "id": "mum_004",
-  "city_id": "mumbai",
-  "name": "New Restaurant",
-  "rating": "4.9"
-}
+### Festival resolution (calendar)
+
+Express picks the festival where:
+
+- `enabled` is true
+- `start_date <= client date <= end_date`
+- `city_id` is null (all cities) **or** matches request city
+- highest `priority` wins on overlap
+
+If none match → non-festival experience (`festival: null`).
+
+### Example
+
+```http
+GET /api/v1/ui-config?city_id=delhi&client_time=2026-08-13T17:00:00+05:30&day_of_month=13
 ```
 
-### Update a Resource
-- **Method:** `PUT` or `PATCH`
-- **Example URL:** `PUT /admin/v1/restaurants/mum_004`
-- **Body:** JSON object with the fields you want to update.
-```json
-{
-  "rating": "5.0",
-  "discount": "60% OFF"
-}
+### Error responses (never falls back to another city)
+
+| Code | Status | When |
+|------|--------|------|
+| `CITY_ID_REQUIRED` | 400 | Missing `city_id` |
+| `CITY_ID_UNSUPPORTED` | 400 | Not in the 6-city allowlist |
+| `CITY_CONFIG_MISSING` | 404 | City missing or incomplete pack (`missing` array listed) |
+
+---
+
+## Public Resource APIs (Read-Only)
+
+- `GET /api/v1/public/cities` — only the 6 supported cities
+- `GET /api/v1/public/categories?city_id=`
+- `GET /api/v1/public/restaurants?city_id=`
+- `GET /api/v1/public/day-phases`
+- `GET /api/v1/public/salary-cycles`
+- `GET /api/v1/public/festivals?city_id=`
+- `GET /api/v1/public/all?city_id=`
+
+---
+
+## Admin APIs (Dynamic Experience Studio)
+
+All require: `Authorization: Bearer <ADMIN_SECRET_TOKEN>`
+
+Resources (GET list + POST + PUT/PATCH + DELETE):
+
+| Path | Table |
+|------|--------|
+| `/admin/v1/cities` | cities |
+| `/admin/v1/categories` | city_categories |
+| `/admin/v1/restaurants` | restaurants |
+| `/admin/v1/greetings` | city_greetings |
+| `/admin/v1/salary-messages` | city_salary_messages |
+| `/admin/v1/spotlights` | local_spotlights |
+| `/admin/v1/ui-labels` | ui_labels |
+| `/admin/v1/trending-tags` | trending_tags |
+| `/admin/v1/day-phases` | day_phases |
+| `/admin/v1/salary-cycles` | salary_cycles |
+| `/admin/v1/festivals` | festival_overlays |
+| `/admin/v1/festival-categories` | festival_categories |
+| `/admin/v1/festival-greetings` | festival_greetings |
+
+City-scoped lists accept `?city_id=`.
+
+Supported cities **cannot be deleted**. Creating cities outside the allowlist is rejected.
+
+Festival admin fields: `id`, `enabled`, `start_date`, `end_date`, `city_id` (null = all), `priority`, overlays/banner/chips.
+
+---
+
+## Seed
+
+```bash
+# optional rebuild from Desktop source + generators
+npm run seed:build
+
+# upsert into Supabase
+npm run seed
 ```
 
-### Delete a Resource
-- **Method:** `DELETE`
-- **Example URL:** `DELETE /admin/v1/restaurants/mum_004`
-- **Response:** `{ "success": true, "message": "Record deleted successfully" }`
+Uses `src/database/seed/dynamic_ui_seed.json`.
+
+Apply migration `src/database/migrations/003_festival_calendar_and_constraints.sql` once on existing DBs.

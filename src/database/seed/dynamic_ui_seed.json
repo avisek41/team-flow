@@ -1,0 +1,1633 @@
+{
+  "_meta": {
+    "version": "3.1.0",
+    "name": "Server-Driven Dynamic UI — React Native",
+    "dimensions": [
+      "city",
+      "day_phase",
+      "salary_cycle",
+      "festival",
+      "weather"
+    ],
+    "total_combinations": "6 cities × 4 phases × 3 salary states × festival calendar",
+    "endpoint": "GET /api/v1/ui-config",
+    "refresh_triggers": [
+      "app_open",
+      "pull_to_refresh",
+      "foreground_resume",
+      "hour_change",
+      "location_delta_3km"
+    ],
+    "supported_cities": [
+      "ahmedabad",
+      "mumbai",
+      "odisha",
+      "delhi",
+      "bengaluru",
+      "hyderabad"
+    ]
+  },
+  "resolver": {
+    "priority": [
+      "festival",
+      "salary_cycle",
+      "day_phase",
+      "city_default"
+    ],
+    "note": "Festival resolved by calendar date + city + priority. Salary: 1-5 premium, 6-24 normal, 25-31 savings.",
+    "salary_cycle": {
+      "premium_days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "savings_days": [
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "normal_days": "6–25"
+    },
+    "day_phase": {
+      "morning": {
+        "hours": "05:00–11:59",
+        "id": "morning"
+      },
+      "afternoon": {
+        "hours": "12:00–16:59",
+        "id": "afternoon"
+      },
+      "evening": {
+        "hours": "17:00–21:59",
+        "id": "evening"
+      },
+      "night": {
+        "hours": "22:00–04:59",
+        "id": "night"
+      }
+    },
+    "weather_triggers": {
+      "rain": "precipitation > 2 mm/hr",
+      "extreme_heat": "temp > 40°C"
+    }
+  },
+  "cities": {
+    "mumbai": {
+      "id": "mumbai",
+      "display_name": "Mumbai, Maharashtra",
+      "accent_color": "#FF5722",
+      "accent_light": "#FF8A65",
+      "is_pure_veg_market": false,
+      "language": {
+        "locale": "mr-IN + en-IN",
+        "script": "Devanagari (Marathi) + Latin",
+        "style": "English-Marathi blend — natural Mumbai food language",
+        "tagline": "आमची मुंबई · Aamchi Mumbai · Local favourites",
+        "search_placeholder": "Vada pav, misal, biryani, cutting chai शोधा...",
+        "greetings": {
+          "morning": {
+            "line1": "Good morning! सुप्रभात!",
+            "line2": "Cutting chai + something solid? ☀️"
+          },
+          "afternoon": {
+            "line1": "Kay chalay?",
+            "line2": "Lunch ready aahe का? 🍱"
+          },
+          "evening": {
+            "line1": "Sandhyakaal!",
+            "line2": "Office के बाद काय खाऊ? 🌆"
+          },
+          "night": {
+            "line1": "Raatri hunger?",
+            "line2": "Late night Mumbai cravings 🌙"
+          }
+        },
+        "salary_messages": {
+          "premium": "Paisa aaya! Kuch special order karo 💸",
+          "savings": "Month-end deals — bachao aur khao! 🤑",
+          "normal": "Mid-month — regular Mumbai favourites order करा 🍴"
+        },
+        "local_spotlight": {
+          "emoji": "🚂",
+          "title": "Local Train Tiffin",
+          "sub": "Dadar pickup by 12pm · Subah ka dabba ready!"
+        },
+        "ui_labels": {
+          "offers_section": "Offers & Deals",
+          "categories_section": "Categories",
+          "trending_section": "🔥 Trending",
+          "nearby_section": "Best Near You",
+          "filter_btn": "Filter",
+          "see_all": "See all →",
+          "view_all": "View all",
+          "order_btn": "Order →",
+          "explore_btn": "Explore",
+          "save_btn": "Save Now"
+        }
+      },
+      "categories": {
+        "morning": [
+          {
+            "emoji": "🍳",
+            "label": "Breakfast",
+            "filter": "breakfast"
+          },
+          {
+            "emoji": "☕",
+            "label": "Chai",
+            "filter": "chai"
+          },
+          {
+            "emoji": "🥪",
+            "label": "Sandwich",
+            "filter": "sandwich"
+          },
+          {
+            "emoji": "🥐",
+            "label": "Bakery",
+            "filter": "bakery"
+          },
+          {
+            "emoji": "🧃",
+            "label": "Juice",
+            "filter": "juice"
+          }
+        ],
+        "afternoon": [
+          {
+            "emoji": "🥘",
+            "label": "Vada Pav",
+            "filter": "vadapav"
+          },
+          {
+            "emoji": "🍱",
+            "label": "Dabba",
+            "filter": "dabba"
+          },
+          {
+            "emoji": "🐟",
+            "label": "Seafood",
+            "filter": "seafood"
+          },
+          {
+            "emoji": "🍛",
+            "label": "Biryani",
+            "filter": "biryani"
+          },
+          {
+            "emoji": "🧆",
+            "label": "Farsan",
+            "filter": "farsan"
+          }
+        ],
+        "evening": [
+          {
+            "emoji": "🍕",
+            "label": "Pizza",
+            "filter": "pizza"
+          },
+          {
+            "emoji": "🍔",
+            "label": "Burger",
+            "filter": "burger"
+          },
+          {
+            "emoji": "🥗",
+            "label": "Salad",
+            "filter": "salad"
+          },
+          {
+            "emoji": "🍺",
+            "label": "Beverages",
+            "filter": "beverages"
+          },
+          {
+            "emoji": "🍜",
+            "label": "Noodles",
+            "filter": "noodles"
+          }
+        ],
+        "night": [
+          {
+            "emoji": "🍕",
+            "label": "Pizza",
+            "filter": "pizza"
+          },
+          {
+            "emoji": "🌮",
+            "label": "Wraps",
+            "filter": "wraps"
+          },
+          {
+            "emoji": "🍔",
+            "label": "Burgers",
+            "filter": "burgers"
+          },
+          {
+            "emoji": "🧋",
+            "label": "Drinks",
+            "filter": "drinks"
+          },
+          {
+            "emoji": "🍦",
+            "label": "Ice Cream",
+            "filter": "ice_cream"
+          }
+        ]
+      },
+      "trending_tags": [
+        "🥘 Missal Pav",
+        "🐟 Bombil Fry",
+        "🧆 Chakli",
+        "☕ Cutting Chai"
+      ],
+      "restaurants": [
+        {
+          "id": "mum_001",
+          "emoji": "🥘",
+          "name": "Trupti Dabba",
+          "rating": "4.8",
+          "time": "20 min",
+          "cuisine": "Maharashtrian",
+          "discount": "30% OFF",
+          "is_veg": true
+        },
+        {
+          "id": "mum_002",
+          "emoji": "🐟",
+          "name": "Koliwada Catch",
+          "rating": "4.6",
+          "time": "25 min",
+          "cuisine": "Seafood",
+          "discount": "FREE DEL",
+          "is_veg": false
+        },
+        {
+          "id": "mum_003",
+          "emoji": "🌮",
+          "name": "SoBo Bites",
+          "rating": "4.5",
+          "time": "30 min",
+          "cuisine": "Fusion",
+          "discount": "20% OFF",
+          "is_veg": false
+        }
+      ]
+    },
+    "odisha": {
+      "id": "odisha",
+      "display_name": "Bhubaneswar, Odisha",
+      "accent_color": "#00897B",
+      "accent_light": "#4DB6AC",
+      "is_pure_veg_market": false,
+      "language": {
+        "locale": "or-IN primary",
+        "script": "Odia (ଓଡ଼ିଆ) + Latin fallback",
+        "style": "Odia-first UI — Odia script primary, English secondary",
+        "tagline": "ଓଡ଼ିଆ ଖାଦ୍ୟ · Odia Khana · ଆମ ଭୋଜନ",
+        "search_placeholder": "ପଖାଳ, ଡାଲ୍‌ମା, ଚ୍ହେନା ଖୋଜ...",
+        "greetings": {
+          "morning": {
+            "line1": "ସୁପ୍ରଭାତ! Suprabhata!",
+            "line2": "ଆଜି କ'ଣ ଖାଇବ? ☀️"
+          },
+          "afternoon": {
+            "line1": "ମଧ୍ୟାହ୍ନ ଭୋଜନ!",
+            "line2": "Odia thali ready ache 🍚"
+          },
+          "evening": {
+            "line1": "ସନ୍ଧ୍ୟା ହୋଇଗଲା!",
+            "line2": "Khana time ho gala 🌆"
+          },
+          "night": {
+            "line1": "ରାତ୍ରି ଭୋଜନ",
+            "line2": "Raat ku Kicha khiba? 🌙"
+          }
+        },
+        "salary_messages": {
+          "premium": "ଦରମା ଆସିଲା! Special thali order kara 💸",
+          "savings": "Month sesh — savings deal dekha! 🤑",
+          "normal": "Regular day — Odia thali / pakhala order kara 🍚"
+        },
+        "local_spotlight": {
+          "emoji": "🛕",
+          "title": "ମନ୍ଦିର ପ୍ରସାଦ",
+          "sub": "Lingaraj mandir area prasad — 6am daily"
+        },
+        "ui_labels": {
+          "offers_section": "ଅଫର ଓ ଡିଲ",
+          "categories_section": "ବିଭାଗ",
+          "trending_section": "🔥 ଟ୍ରେଣ୍ଡ",
+          "nearby_section": "ନିକଟ ସ୍ଥାନ",
+          "filter_btn": "ଫିଲ୍ଟର",
+          "see_all": "ସବୁ ଦେଖ →",
+          "view_all": "ସବୁ ଦେଖ",
+          "order_btn": "Order →",
+          "explore_btn": "ଅନ୍ୱେଷଣ",
+          "save_btn": "ବଞ୍ଚାଅ"
+        }
+      },
+      "categories": {
+        "morning": [
+          {
+            "emoji": "🍚",
+            "label": "ଚଉଳ",
+            "filter": "rice"
+          },
+          {
+            "emoji": "☕",
+            "label": "ଚା",
+            "filter": "chai"
+          },
+          {
+            "emoji": "🥥",
+            "label": "Nadia",
+            "filter": "coconut"
+          },
+          {
+            "emoji": "🌿",
+            "label": "Saag",
+            "filter": "saag"
+          },
+          {
+            "emoji": "🫕",
+            "label": "Dalma",
+            "filter": "dalma"
+          }
+        ],
+        "afternoon": [
+          {
+            "emoji": "🍚",
+            "label": "Pakhala",
+            "filter": "pakhala"
+          },
+          {
+            "emoji": "🫕",
+            "label": "Dalma",
+            "filter": "dalma"
+          },
+          {
+            "emoji": "🐟",
+            "label": "Macha",
+            "filter": "fish"
+          },
+          {
+            "emoji": "🥥",
+            "label": "Chhena",
+            "filter": "chhena"
+          },
+          {
+            "emoji": "🍬",
+            "label": "Rasogolla",
+            "filter": "rasogolla"
+          }
+        ],
+        "evening": [
+          {
+            "emoji": "🧆",
+            "label": "Bara",
+            "filter": "bara"
+          },
+          {
+            "emoji": "🍡",
+            "label": "Chhenagaja",
+            "filter": "chhenagaja"
+          },
+          {
+            "emoji": "🐟",
+            "label": "Fish Fry",
+            "filter": "fish_fry"
+          },
+          {
+            "emoji": "🥘",
+            "label": "Kosha",
+            "filter": "kosha"
+          },
+          {
+            "emoji": "🍮",
+            "label": "Malpua",
+            "filter": "malpua"
+          }
+        ],
+        "night": [
+          {
+            "emoji": "🍚",
+            "label": "Pakhala",
+            "filter": "pakhala"
+          },
+          {
+            "emoji": "🍲",
+            "label": "Khichdi",
+            "filter": "khichdi"
+          },
+          {
+            "emoji": "🥟",
+            "label": "Pithas",
+            "filter": "pithas"
+          },
+          {
+            "emoji": "🍜",
+            "label": "Noodles",
+            "filter": "noodles"
+          },
+          {
+            "emoji": "🧋",
+            "label": "Lassi",
+            "filter": "lassi"
+          }
+        ]
+      },
+      "trending_tags": [
+        "🍚 Pakhala Bhata",
+        "🫕 Dalma",
+        "🥥 Chhena Poda",
+        "🐟 Macha Jhola"
+      ],
+      "restaurants": [
+        {
+          "id": "odi_001",
+          "emoji": "🍚",
+          "name": "Odisha Thali House",
+          "rating": "4.9",
+          "time": "25 min",
+          "cuisine": "Traditional",
+          "discount": "40% OFF",
+          "is_veg": true
+        },
+        {
+          "id": "odi_002",
+          "emoji": "🥥",
+          "name": "Chhena Poda Corner",
+          "rating": "4.7",
+          "time": "20 min",
+          "cuisine": "Sweets",
+          "discount": "BUY 2 GET 1",
+          "is_veg": true
+        },
+        {
+          "id": "odi_003",
+          "emoji": "🐟",
+          "name": "Mahanadi Fish Home",
+          "rating": "4.6",
+          "time": "30 min",
+          "cuisine": "Seafood",
+          "discount": "COMBO ₹149",
+          "is_veg": false
+        }
+      ]
+    },
+    "ahmedabad": {
+      "id": "ahmedabad",
+      "display_name": "Ahmedabad, Gujarat",
+      "accent_color": "#7B1FA2",
+      "accent_light": "#AB47BC",
+      "is_pure_veg_market": true,
+      "language": {
+        "locale": "gu-IN + en-IN",
+        "script": "Gujarati (ગુજરાતી) + Latin",
+        "style": "English-Gujarati blend — English structure, Gujarati warmth",
+        "tagline": "Kem Cho · ગુજરાતી ખોરાક · Pure Veg",
+        "search_placeholder": "Thali, farsaan, gathiya શોધો...",
+        "greetings": {
+          "morning": {
+            "line1": "Good morning! સારી સવાર!",
+            "line2": "શું ખાશો સવારે? ☀️"
+          },
+          "afternoon": {
+            "line1": "Kem Cho! શું ચાલે?",
+            "line2": "Unlimited Thali time! 🥗"
+          },
+          "evening": {
+            "line1": "Good evening! સારી સાંજ!",
+            "line2": "સાંજ નો નાસ્તો? 🌆"
+          },
+          "night": {
+            "line1": "Raat na khana?",
+            "line2": "Late night — શું ખાવું? 🌙"
+          }
+        },
+        "salary_messages": {
+          "premium": "Salary aavi! Kuch special mangavo 💸",
+          "savings": "Mahino puro — bachao ane khao! 🤑",
+          "normal": "Normal day — thali ke farsaan, kem cho! 🥗"
+        },
+        "local_spotlight": {
+          "emoji": "🪁",
+          "title": "Uttarayan Special",
+          "sub": "Undhiyu + Jalebi combo — this week only!"
+        },
+        "ui_labels": {
+          "offers_section": "Offers & Deals",
+          "categories_section": "Categories · વિભાગ",
+          "trending_section": "🔥 Trending",
+          "nearby_section": "Best Near You",
+          "filter_btn": "Filter",
+          "see_all": "બધું જુઓ →",
+          "view_all": "View all",
+          "order_btn": "Order →",
+          "explore_btn": "Explore",
+          "save_btn": "બચાવો"
+        }
+      },
+      "categories": {
+        "morning": [
+          {
+            "emoji": "☕",
+            "label": "Chai",
+            "filter": "chai"
+          },
+          {
+            "emoji": "🫓",
+            "label": "Khakhra",
+            "filter": "khakhra"
+          },
+          {
+            "emoji": "🥜",
+            "label": "Farsaan",
+            "filter": "farsaan"
+          },
+          {
+            "emoji": "🍮",
+            "label": "Shrikhand",
+            "filter": "shrikhand"
+          },
+          {
+            "emoji": "🧃",
+            "label": "Juice",
+            "filter": "juice"
+          }
+        ],
+        "afternoon": [
+          {
+            "emoji": "🥗",
+            "label": "Thali",
+            "filter": "thali"
+          },
+          {
+            "emoji": "🥜",
+            "label": "Farsaan",
+            "filter": "farsaan"
+          },
+          {
+            "emoji": "🍡",
+            "label": "Mohanthal",
+            "filter": "mohanthal"
+          },
+          {
+            "emoji": "🥛",
+            "label": "Chaas",
+            "filter": "chaas"
+          },
+          {
+            "emoji": "🫓",
+            "label": "Khakhra",
+            "filter": "khakhra"
+          }
+        ],
+        "evening": [
+          {
+            "emoji": "🥟",
+            "label": "Pani Puri",
+            "filter": "pani_puri"
+          },
+          {
+            "emoji": "🧆",
+            "label": "Dabeli",
+            "filter": "dabeli"
+          },
+          {
+            "emoji": "🥜",
+            "label": "Chaat",
+            "filter": "chaat"
+          },
+          {
+            "emoji": "🍮",
+            "label": "Shrikhand",
+            "filter": "shrikhand"
+          },
+          {
+            "emoji": "🍡",
+            "label": "Sweets",
+            "filter": "sweets"
+          }
+        ],
+        "night": [
+          {
+            "emoji": "🥗",
+            "label": "Thali",
+            "filter": "thali"
+          },
+          {
+            "emoji": "🍕",
+            "label": "Pizza",
+            "filter": "pizza"
+          },
+          {
+            "emoji": "🍔",
+            "label": "Burger",
+            "filter": "burger"
+          },
+          {
+            "emoji": "🧋",
+            "label": "Drinks",
+            "filter": "drinks"
+          },
+          {
+            "emoji": "🍦",
+            "label": "Ice Cream",
+            "filter": "ice_cream"
+          }
+        ]
+      },
+      "trending_tags": [
+        "🥗 Unlimited Thali",
+        "🍡 Mohanthal",
+        "🥜 Sev Mamra",
+        "🥛 Masala Chaas"
+      ],
+      "restaurants": [
+        {
+          "id": "ahm_001",
+          "emoji": "🥗",
+          "name": "Honest Kathiyawadi",
+          "rating": "4.9",
+          "time": "20 min",
+          "cuisine": "Thali",
+          "discount": "UNLI THALI",
+          "is_veg": true
+        },
+        {
+          "id": "ahm_002",
+          "emoji": "🍡",
+          "name": "Manek Chowk Sweets",
+          "rating": "4.8",
+          "time": "15 min",
+          "cuisine": "Mithai",
+          "discount": "35% OFF",
+          "is_veg": true
+        },
+        {
+          "id": "ahm_003",
+          "emoji": "🥜",
+          "name": "Farali Express",
+          "rating": "4.6",
+          "time": "25 min",
+          "cuisine": "Farsan",
+          "discount": "FREE CHAAS",
+          "is_veg": true
+        }
+      ]
+    },
+    "delhi": {
+      "id": "delhi",
+      "display_name": "Delhi, Delhi",
+      "accent_color": "#D32F2F",
+      "accent_light": "#EF5350",
+      "is_pure_veg_market": false,
+      "language": {
+        "locale": "hi-IN + en-IN",
+        "script": "Devanagari + Latin",
+        "style": "English-Hindi blend — natural Delhi Hinglish",
+        "tagline": "Dilli ka swaad · दिल्ली का स्वाद · Apne style ka khaana",
+        "search_placeholder": "Biryani, chole bhature, momos, parathe khojo...",
+        "greetings": {
+          "morning": {
+            "line1": "Good morning, Dilli!",
+            "line2": "Parathe + chai se start? ☀️"
+          },
+          "afternoon": {
+            "line1": "Kya scene hai?",
+            "line2": "Lunch mein chole bhature? 🍱"
+          },
+          "evening": {
+            "line1": "Shaam ho gayi yaar!",
+            "line2": "Momos ya chaat? 🌆"
+          },
+          "night": {
+            "line1": "Raat ke 12 baj gaye?",
+            "line2": "Butter chicken craving? 🌙"
+          }
+        },
+        "salary_messages": {
+          "premium": "Salary aa gayi! Aaj kuch solid try karo 💸",
+          "normal": "Mid-month — usual Dilli favourites hi best hain 🍽️",
+          "savings": "Month-end — deals maar lo, budget bachao 🤑"
+        },
+        "local_spotlight": {
+          "emoji": "🥟",
+          "title": "Momos & Chaat Lane",
+          "sub": "Hudson Lane to Chandni Chowk — evening rush specials"
+        },
+        "ui_labels": {
+          "offers_section": "Offers & Deals",
+          "categories_section": "Categories · कैटेगरी",
+          "trending_section": "🔥 Trending in Dilli",
+          "nearby_section": "Best Near You",
+          "filter_btn": "Filter",
+          "see_all": "See all →",
+          "view_all": "View all",
+          "order_btn": "Order →",
+          "explore_btn": "Explore",
+          "save_btn": "Save"
+        }
+      },
+      "categories": {
+        "morning": [
+          {
+            "emoji": "🫓",
+            "label": "Paratha",
+            "filter": "paratha"
+          },
+          {
+            "emoji": "☕",
+            "label": "Chai",
+            "filter": "chai"
+          },
+          {
+            "emoji": "🥪",
+            "label": "Sandwich",
+            "filter": "sandwich"
+          },
+          {
+            "emoji": "🧃",
+            "label": "Juice",
+            "filter": "juice"
+          },
+          {
+            "emoji": "🥐",
+            "label": "Bakery",
+            "filter": "bakery"
+          }
+        ],
+        "afternoon": [
+          {
+            "emoji": "🍛",
+            "label": "Chole Bhature",
+            "filter": "chole_bhature"
+          },
+          {
+            "emoji": "🍚",
+            "label": "Biryani",
+            "filter": "biryani"
+          },
+          {
+            "emoji": "🥗",
+            "label": "Thali",
+            "filter": "thali"
+          },
+          {
+            "emoji": "🌮",
+            "label": "Rolls",
+            "filter": "rolls"
+          },
+          {
+            "emoji": "🍜",
+            "label": "Chinese",
+            "filter": "chinese"
+          }
+        ],
+        "evening": [
+          {
+            "emoji": "🥟",
+            "label": "Momos",
+            "filter": "momos"
+          },
+          {
+            "emoji": "🥜",
+            "label": "Chaat",
+            "filter": "chaat"
+          },
+          {
+            "emoji": "🥙",
+            "label": "Kebabs",
+            "filter": "kebabs"
+          },
+          {
+            "emoji": "🍵",
+            "label": "Kulhad Chai",
+            "filter": "kulhad_chai"
+          },
+          {
+            "emoji": "🍬",
+            "label": "Mithai",
+            "filter": "mithai"
+          }
+        ],
+        "night": [
+          {
+            "emoji": "🍗",
+            "label": "Butter Chicken",
+            "filter": "butter_chicken"
+          },
+          {
+            "emoji": "🍕",
+            "label": "Pizza",
+            "filter": "pizza"
+          },
+          {
+            "emoji": "🍔",
+            "label": "Burgers",
+            "filter": "burgers"
+          },
+          {
+            "emoji": "🥟",
+            "label": "Momos",
+            "filter": "momos"
+          },
+          {
+            "emoji": "🧋",
+            "label": "Drinks",
+            "filter": "drinks"
+          }
+        ]
+      },
+      "trending_tags": [
+        "🫓 Aloo Paratha",
+        "🥟 Chicken Momos",
+        "🍛 Chole Bhature",
+        "🍗 Butter Chicken"
+      ],
+      "restaurants": []
+    },
+    "bengaluru": {
+      "id": "bengaluru",
+      "display_name": "Bengaluru, Karnataka",
+      "accent_color": "#1565C0",
+      "accent_light": "#42A5F5",
+      "is_pure_veg_market": false,
+      "language": {
+        "locale": "kn-IN + en-IN",
+        "script": "Kannada (ಕನ್ನಡ) + Latin",
+        "style": "English-Kannada blend — natural Bengaluru food language",
+        "tagline": "ಬೆಂಗಳೂರು ಊಟ · Bengaluru Oota · Namma food, namma style",
+        "search_placeholder": "Dosa, idli, biryani, meals ಹುಡುಕಿ...",
+        "greetings": {
+          "morning": {
+            "line1": "Good morning! ಶುಭೋದಯ!",
+            "line2": "Filter coffee + dosa? ☀️"
+          },
+          "afternoon": {
+            "line1": "En agta ide?",
+            "line2": "Meals / biryani time! 🍱"
+          },
+          "evening": {
+            "line1": "Sanjeya vela!",
+            "line2": "Snacks + chai? 🌆"
+          },
+          "night": {
+            "line1": "Late night hunger?",
+            "line2": "Biryani illa andre pizza? 🌙"
+          }
+        },
+        "salary_messages": {
+          "premium": "Salary bandide! Treat yourself — premium oota 💸",
+          "normal": "Mid-month — namma regular favourites 🍽️",
+          "savings": "Month end — deals catch maadi 🤑"
+        },
+        "local_spotlight": {
+          "emoji": "☕",
+          "title": "Filter Coffee Trail",
+          "sub": "VV Puram to Indiranagar — morning strong decoction"
+        },
+        "ui_labels": {
+          "offers_section": "Offers & Deals",
+          "categories_section": "Categories · ವಿಭಾಗ",
+          "trending_section": "🔥 Trending in Namma City",
+          "nearby_section": "Best Near You",
+          "filter_btn": "Filter",
+          "see_all": "See all →",
+          "view_all": "View all",
+          "order_btn": "Order →",
+          "explore_btn": "Explore",
+          "save_btn": "Save"
+        }
+      },
+      "categories": {
+        "morning": [
+          {
+            "emoji": "🥞",
+            "label": "Dosa",
+            "filter": "dosa"
+          },
+          {
+            "emoji": "🍚",
+            "label": "Idli",
+            "filter": "idli"
+          },
+          {
+            "emoji": "☕",
+            "label": "Filter Coffee",
+            "filter": "filter_coffee"
+          },
+          {
+            "emoji": "🍩",
+            "label": "Vada",
+            "filter": "vada"
+          },
+          {
+            "emoji": "🧃",
+            "label": "Juice",
+            "filter": "juice"
+          }
+        ],
+        "afternoon": [
+          {
+            "emoji": "🍱",
+            "label": "Meals",
+            "filter": "meals"
+          },
+          {
+            "emoji": "🍚",
+            "label": "Biryani",
+            "filter": "biryani"
+          },
+          {
+            "emoji": "🍛",
+            "label": "Rice Bath",
+            "filter": "rice_bath"
+          },
+          {
+            "emoji": "🥗",
+            "label": "Thali",
+            "filter": "thali"
+          },
+          {
+            "emoji": "🌮",
+            "label": "Rolls",
+            "filter": "rolls"
+          }
+        ],
+        "evening": [
+          {
+            "emoji": "🥟",
+            "label": "Momos",
+            "filter": "momos"
+          },
+          {
+            "emoji": "☕",
+            "label": "Chai",
+            "filter": "chai"
+          },
+          {
+            "emoji": "🥜",
+            "label": "Chaat",
+            "filter": "chaat"
+          },
+          {
+            "emoji": "🥐",
+            "label": "Bakery",
+            "filter": "bakery"
+          },
+          {
+            "emoji": "🍧",
+            "label": "Ice Cream",
+            "filter": "ice_cream"
+          }
+        ],
+        "night": [
+          {
+            "emoji": "🍚",
+            "label": "Biryani",
+            "filter": "biryani"
+          },
+          {
+            "emoji": "🍕",
+            "label": "Pizza",
+            "filter": "pizza"
+          },
+          {
+            "emoji": "🍔",
+            "label": "Burgers",
+            "filter": "burgers"
+          },
+          {
+            "emoji": "🍜",
+            "label": "Chinese",
+            "filter": "chinese"
+          },
+          {
+            "emoji": "🧋",
+            "label": "Drinks",
+            "filter": "drinks"
+          }
+        ]
+      },
+      "trending_tags": [
+        "🥞 Masala Dosa",
+        "☕ Filter Coffee",
+        "🍚 Donne Biryani",
+        "🍱 Meals"
+      ],
+      "restaurants": []
+    },
+    "hyderabad": {
+      "id": "hyderabad",
+      "display_name": "Hyderabad, Telangana",
+      "accent_color": "#6A1B9A",
+      "accent_light": "#AB47BC",
+      "is_pure_veg_market": false,
+      "language": {
+        "locale": "te-IN + en-IN",
+        "script": "Telugu (తెలుగు) + Latin",
+        "style": "English-Telugu blend — natural Hyderabad food language",
+        "tagline": "హైదరాబాద్ రుచి · Hyderabadi Ruchi · Dil se food",
+        "search_placeholder": "Biryani, haleem, dosa, kebabs వెతకండి...",
+        "greetings": {
+          "morning": {
+            "line1": "Good morning! శుభోదయం!",
+            "line2": "Irani chai + Osmania? ☀️"
+          },
+          "afternoon": {
+            "line1": "Em chestunnav?",
+            "line2": "Biryani time ayyindi! 🍱"
+          },
+          "evening": {
+            "line1": "Sayantram!",
+            "line2": "Haleem or kebabs? 🌆"
+          },
+          "night": {
+            "line1": "Late night craving?",
+            "line2": "Dum biryani call chestava? 🌙"
+          }
+        },
+        "salary_messages": {
+          "premium": "Salary vachindi! Ijjaatha special order cheyyi 💸",
+          "normal": "Mid-month — regular Hyderabadi favourites 🍽️",
+          "savings": "Month end — deals catch chesko 🤑"
+        },
+        "local_spotlight": {
+          "emoji": "🍚",
+          "title": "Dum Biryani Stretch",
+          "sub": "Charminar to Madhapur — slow-cook classics"
+        },
+        "ui_labels": {
+          "offers_section": "Offers & Deals",
+          "categories_section": "Categories · వర్గాలు",
+          "trending_section": "🔥 Trending in Hyd",
+          "nearby_section": "Best Near You",
+          "filter_btn": "Filter",
+          "see_all": "See all →",
+          "view_all": "View all",
+          "order_btn": "Order →",
+          "explore_btn": "Explore",
+          "save_btn": "Save"
+        }
+      },
+      "categories": {
+        "morning": [
+          {
+            "emoji": "🥞",
+            "label": "Dosa",
+            "filter": "dosa"
+          },
+          {
+            "emoji": "☕",
+            "label": "Irani Chai",
+            "filter": "irani_chai"
+          },
+          {
+            "emoji": "🥯",
+            "label": "Osmania",
+            "filter": "osmania"
+          },
+          {
+            "emoji": "🍚",
+            "label": "Idli",
+            "filter": "idli"
+          },
+          {
+            "emoji": "🧃",
+            "label": "Juice",
+            "filter": "juice"
+          }
+        ],
+        "afternoon": [
+          {
+            "emoji": "🍚",
+            "label": "Biryani",
+            "filter": "biryani"
+          },
+          {
+            "emoji": "🥗",
+            "label": "Thali",
+            "filter": "thali"
+          },
+          {
+            "emoji": "🍖",
+            "label": "Haleem",
+            "filter": "haleem"
+          },
+          {
+            "emoji": "🌮",
+            "label": "Rolls",
+            "filter": "rolls"
+          },
+          {
+            "emoji": "🍛",
+            "label": "Curries",
+            "filter": "curries"
+          }
+        ],
+        "evening": [
+          {
+            "emoji": "🥙",
+            "label": "Kebabs",
+            "filter": "kebabs"
+          },
+          {
+            "emoji": "🥜",
+            "label": "Chaat",
+            "filter": "chaat"
+          },
+          {
+            "emoji": "☕",
+            "label": "Chai",
+            "filter": "chai"
+          },
+          {
+            "emoji": "🍬",
+            "label": "Mithai",
+            "filter": "mithai"
+          },
+          {
+            "emoji": "🍧",
+            "label": "Ice Cream",
+            "filter": "ice_cream"
+          }
+        ],
+        "night": [
+          {
+            "emoji": "🍚",
+            "label": "Biryani",
+            "filter": "biryani"
+          },
+          {
+            "emoji": "🍖",
+            "label": "Haleem",
+            "filter": "haleem"
+          },
+          {
+            "emoji": "🍕",
+            "label": "Pizza",
+            "filter": "pizza"
+          },
+          {
+            "emoji": "🍔",
+            "label": "Burgers",
+            "filter": "burgers"
+          },
+          {
+            "emoji": "🧋",
+            "label": "Drinks",
+            "filter": "drinks"
+          }
+        ]
+      },
+      "trending_tags": [
+        "🍚 Dum Biryani",
+        "🍖 Haleem",
+        "🥙 Kebabs",
+        "☕ Irani Chai"
+      ],
+      "restaurants": []
+    }
+  },
+  "day_phases": {
+    "morning": {
+      "id": "morning",
+      "label": "🌅 Morning Mode",
+      "hours": "05:00–11:59",
+      "mood": "Light, warm, gentle — ease into the day",
+      "colors": {
+        "background": "#fffbf0",
+        "header_gradient": [
+          "#ff9a3c",
+          "#ffb347",
+          "#ffd280"
+        ],
+        "header_text": "#3d1a00",
+        "status_bar": "#3d1a00",
+        "search_bg": "#ffffff",
+        "search_text": "#3d1a00",
+        "card_bg": "#ffffff",
+        "card_text": "#2a1a00",
+        "card_meta": "#a07840",
+        "section_title": "#2a1a00",
+        "see_all": "#e07000",
+        "offer_bg": "#fff8e7",
+        "offer_border": "#ffd98c",
+        "offer_text": "#b05000",
+        "rating_bg": "#ff9a3c",
+        "rating_text": "#ffffff",
+        "discount_bg": "#ff9a3c",
+        "discount_text": "#ffffff",
+        "cat_icon_bg": "#fff8e7",
+        "cat_label": "#3d1a00",
+        "nav_bg": "rgba(255,251,240,0.97)",
+        "nav_active": "#ff9a3c",
+        "nav_inactive": "#d4a870",
+        "trend_chip_bg": "#fff3d6",
+        "trend_chip_text": "#b05000",
+        "phase_strip_bg": "rgba(255,180,60,0.18)"
+      },
+      "weather_icon": "🌤️",
+      "phase_label": "🌅 Morning Mode — Light & Warm",
+      "phase_sub": "Soft golden tones, easy on the eyes",
+      "default_offers": [
+        "🌅 Morning special 25% off",
+        "☕ Free chai on ₹199+",
+        "🥐 Breakfast combos ₹79"
+      ]
+    },
+    "afternoon": {
+      "id": "afternoon",
+      "label": "☀️ Afternoon Mode",
+      "hours": "12:00–16:59",
+      "mood": "Bright, energetic, high contrast — peak lunch hours",
+      "colors": {
+        "background": "#f0faff",
+        "header_gradient": [
+          "#0077cc",
+          "#00aaff",
+          "#33bbff"
+        ],
+        "header_text": "#ffffff",
+        "status_bar": "#ffffff",
+        "search_bg": "#ffffff",
+        "search_text": "#003a6e",
+        "card_bg": "#ffffff",
+        "card_text": "#002a4a",
+        "card_meta": "#4a80a0",
+        "section_title": "#002a4a",
+        "see_all": "#0077cc",
+        "offer_bg": "#e6f4ff",
+        "offer_border": "#99d4ff",
+        "offer_text": "#005599",
+        "rating_bg": "#0077cc",
+        "rating_text": "#ffffff",
+        "discount_bg": "#0077cc",
+        "discount_text": "#ffffff",
+        "cat_icon_bg": "#e6f4ff",
+        "cat_label": "#003a6e",
+        "nav_bg": "rgba(240,250,255,0.97)",
+        "nav_active": "#0077cc",
+        "nav_inactive": "#90bcd4",
+        "trend_chip_bg": "#d6efff",
+        "trend_chip_text": "#005599",
+        "phase_strip_bg": "rgba(0,170,255,0.12)"
+      },
+      "weather_icon": "☀️",
+      "phase_label": "☀️ Afternoon Mode — Bright & Energetic",
+      "phase_sub": "Bold blues, high energy, peak hours",
+      "default_offers": [
+        "⚡ Flash deal 12–3pm",
+        "🍱 Lunch combo ₹149",
+        "🚀 Express 20-min delivery"
+      ]
+    },
+    "evening": {
+      "id": "evening",
+      "label": "🌆 Evening Mode",
+      "hours": "17:00–21:59",
+      "mood": "Dark orange + purple — dramatic dinner vibes",
+      "colors": {
+        "background": "#1a0a20",
+        "header_gradient": [
+          "#6a0080",
+          "#c2185b",
+          "#ff6d00"
+        ],
+        "header_text": "#ffe0b2",
+        "status_bar": "#ffe0b2",
+        "search_bg": "rgba(255,255,255,0.09)",
+        "search_text": "#ffe0b2",
+        "card_bg": "#280a30",
+        "card_text": "#ffe0b2",
+        "card_meta": "#c07890",
+        "section_title": "#ffe0b2",
+        "see_all": "#ff6d00",
+        "offer_bg": "rgba(255,109,0,0.12)",
+        "offer_border": "rgba(255,109,0,0.3)",
+        "offer_text": "#ff9944",
+        "rating_bg": "#c2185b",
+        "rating_text": "#ffffff",
+        "discount_bg": "#ff6d00",
+        "discount_text": "#ffffff",
+        "cat_icon_bg": "rgba(255,255,255,0.07)",
+        "cat_label": "#ffe0b2",
+        "nav_bg": "rgba(26,10,32,0.97)",
+        "nav_active": "#ff6d00",
+        "nav_inactive": "#5a2a40",
+        "trend_chip_bg": "rgba(194,24,91,0.18)",
+        "trend_chip_text": "#ff9070",
+        "phase_strip_bg": "rgba(194,24,91,0.2)"
+      },
+      "weather_icon": "🌇",
+      "phase_label": "🌆 Evening Mode — Dark Orange · Purple",
+      "phase_sub": "Warm drama, perfect for dinner orders",
+      "default_offers": [
+        "🌆 Evening special 30% off",
+        "🍕 Dinner combos",
+        "🥂 Date night deals"
+      ]
+    },
+    "night": {
+      "id": "night",
+      "label": "🌑 AMOLED Dark Mode",
+      "hours": "22:00–04:59",
+      "mood": "Pure black (#000000) — AMOLED battery saver, ultra dark",
+      "colors": {
+        "background": "#000000",
+        "header_gradient": [
+          "#000000",
+          "#0a0a0a",
+          "#111111"
+        ],
+        "header_text": "#c8d8ff",
+        "status_bar": "#c8d8ff",
+        "search_bg": "rgba(255,255,255,0.06)",
+        "search_text": "#c8d8ff",
+        "card_bg": "#0d0d0d",
+        "card_text": "#d8e4ff",
+        "card_meta": "#5060a0",
+        "section_title": "#d8e4ff",
+        "see_all": "#5578ff",
+        "offer_bg": "rgba(85,120,255,0.08)",
+        "offer_border": "rgba(85,120,255,0.2)",
+        "offer_text": "#7090ff",
+        "rating_bg": "#3344cc",
+        "rating_text": "#ffffff",
+        "discount_bg": "#3344cc",
+        "discount_text": "#ffffff",
+        "cat_icon_bg": "rgba(255,255,255,0.04)",
+        "cat_label": "#b0c0f0",
+        "nav_bg": "rgba(0,0,0,0.98)",
+        "nav_active": "#5578ff",
+        "nav_inactive": "#1a1a3a",
+        "trend_chip_bg": "rgba(85,120,255,0.1)",
+        "trend_chip_text": "#6080ee",
+        "phase_strip_bg": "rgba(85,120,255,0.1)"
+      },
+      "weather_icon": "🌙",
+      "phase_label": "🌑 AMOLED Dark — Pure Black",
+      "phase_sub": "True black display · Saves battery · Easy on eyes",
+      "default_offers": [
+        "🌙 Night owl 25% off",
+        "⭐ Post 11pm free delivery",
+        "🔥 Hot deals 10pm–4am"
+      ]
+    }
+  },
+  "salary_cycles": {
+    "premium": {
+      "id": "premium",
+      "trigger_days": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "label": "💰 Payday Week",
+      "tone": "premium — indulge, treat yourself, fine dining",
+      "avatar_ring_color": "#ffd700",
+      "avatar_ring_label": "💰",
+      "banner": {
+        "gradient": [
+          "#1a237e",
+          "#283593",
+          "#3949ab"
+        ],
+        "text_color": "#e8eaf6",
+        "badge": "💸 PAYDAY MODE",
+        "badge_bg": "rgba(255,215,0,0.2)",
+        "badge_text": "#ffd700",
+        "emoji": "💎",
+        "title": "Treat Yourself!",
+        "sub": "Premium picks · Free delivery on all orders this week",
+        "cta_label": "Shop Premium",
+        "cta_bg": "#ffd700",
+        "cta_text": "#1a237e"
+      },
+      "offer_chips": [
+        "💎 Premium restaurants",
+        "🍣 Fine Dining open",
+        "🥂 Gourmet combos",
+        "🎁 Gift a meal"
+      ],
+      "city_message": {
+        "mumbai": "Paisa aaya! Kuch special order karo 💸",
+        "odisha": "ଦରମା ଆସିଲା! Special thali order kara 💸",
+        "ahmedabad": "Salary aavi! Kuch special mangavo 💸"
+      }
+    },
+    "savings": {
+      "id": "savings",
+      "trigger_days": [
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31
+      ],
+      "label": "💡 Month End Savings",
+      "tone": "savings — deals, combos, budget picks, stretch money",
+      "avatar_ring_color": "#69f0ae",
+      "avatar_ring_label": "💡",
+      "banner": {
+        "gradient": [
+          "#1b5e20",
+          "#2e7d32",
+          "#388e3c"
+        ],
+        "text_color": "#e8f5e9",
+        "badge": "🤑 SAVINGS MODE",
+        "badge_bg": "rgba(144,238,144,0.2)",
+        "badge_text": "#69f0ae",
+        "emoji": "🤑",
+        "title": "Stretch Your Budget!",
+        "sub": "Best value meals · Combo deals · Under ₹99 options",
+        "cta_label": "Find Deals",
+        "cta_bg": "#69f0ae",
+        "cta_text": "#1b5e20"
+      },
+      "offer_chips": [
+        "💡 Under ₹99 meals",
+        "🎯 Combo savings",
+        "🔖 Use your coins",
+        "📦 Group orders"
+      ],
+      "city_message": {
+        "mumbai": "Month-end deals — bachao aur khao! 🤑",
+        "odisha": "Month sesh — savings deal dekha! 🤑",
+        "ahmedabad": "Mahino puro — bachao ane khao! 🤑"
+      }
+    },
+    "normal": {
+      "id": "normal",
+      "trigger_days": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24
+      ],
+      "label": "📅 Mid Month",
+      "tone": "standard — normal food delivery UI",
+      "avatar_ring_color": null,
+      "banner": null,
+      "offer_chips": []
+    }
+  },
+  "festival_overlays": {
+    "diwali": {
+      "id": "diwali",
+      "enabled": true,
+      "active": true,
+      "city_id": null,
+      "start_date": "2026-11-07",
+      "end_date": "2026-11-11",
+      "priority": 100,
+      "detection": "calendar",
+      "color_overrides": {
+        "header_gradient": [
+          "#5c2200",
+          "#a05000",
+          "#d4a000"
+        ],
+        "header_text": "#ffe680",
+        "status_bar": "#ffe680"
+      },
+      "banner": {
+        "emoji": "🪔",
+        "title": "Shubh Diwali! ✨",
+        "sub": "Mithai, Sweets & Festive Hampers delivered",
+        "badge": "✨ FESTIVAL"
+      },
+      "categories": [
+        {
+          "emoji": "🍬",
+          "label": "Mithai"
+        },
+        {
+          "emoji": "🎁",
+          "label": "Hampers"
+        },
+        {
+          "emoji": "🥮",
+          "label": "Gujiya"
+        },
+        {
+          "emoji": "🧆",
+          "label": "Namkeen"
+        },
+        {
+          "emoji": "🍯",
+          "label": "Ladoo"
+        },
+        {
+          "emoji": "🪔",
+          "label": "Special"
+        }
+      ],
+      "offer_chips": [
+        "🪔 Diwali 45% off",
+        "🎁 Hamper ₹499",
+        "✨ Gift wrap free"
+      ],
+      "greeting_override": {
+        "mumbai": "Shubh Diwali! 🪔✨",
+        "odisha": "ଶୁଭ ଦୀପାବଳି! 🪔",
+        "ahmedabad": "Shubh Deepavali! 🪔",
+        "delhi": "Shubh Diwali, Dilli!",
+        "bengaluru": "Shubh Deepavali! Namma oorina habba",
+        "hyderabad": "Shubh Diwali! Deepavali subhakankshalu"
+      }
+    },
+    "holi": {
+      "id": "holi",
+      "enabled": true,
+      "active": true,
+      "city_id": null,
+      "start_date": "2026-03-03",
+      "end_date": "2026-03-05",
+      "priority": 90,
+      "detection": "calendar",
+      "color_overrides": {
+        "header_gradient": [
+          "#880e4f",
+          "#e91e63",
+          "#ff9800"
+        ],
+        "header_text": "#ffffff",
+        "status_bar": "#ffffff"
+      },
+      "banner": {
+        "emoji": "🎨",
+        "title": "Happy Holi! 🌈",
+        "sub": "Thandai, Gujiya & colour combo plates",
+        "badge": "🌈 HOLI 2026"
+      },
+      "categories": [
+        {
+          "emoji": "🥛",
+          "label": "Thandai"
+        },
+        {
+          "emoji": "🥮",
+          "label": "Gujiya"
+        },
+        {
+          "emoji": "🍮",
+          "label": "Malpua"
+        },
+        {
+          "emoji": "🎨",
+          "label": "Special"
+        },
+        {
+          "emoji": "🍡",
+          "label": "Sweets"
+        },
+        {
+          "emoji": "🥳",
+          "label": "Party Box"
+        }
+      ],
+      "offer_chips": [
+        "🌈 Holi 40% off",
+        "🥛 Thandai ₹79",
+        "🎨 Group 6+ 15% extra"
+      ],
+      "greeting_override": {
+        "mumbai": "Happy Holi! 🌈🎨",
+        "odisha": "ହୋଲି ଶୁଭେଚ୍ଛା! 🌈",
+        "ahmedabad": "Happy Holi! રંગ ઉત્સવ! 🎨",
+        "delhi": "Happy Holi, Dilli!",
+        "bengaluru": "Happy Holi! Rangotsava",
+        "hyderabad": "Happy Holi! Holi subhakankshalu"
+      }
+    }
+  }
+}

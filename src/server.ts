@@ -11,6 +11,7 @@ import uiConfigRoutes from "./routes/uiConfigRoutes";
 import publicRoutes from "./routes/publicRoutes";
 import adminRoutes from "./routes/adminRoutes";
 dotenv.config();
+dotenv.config({ path: "dynamic-ui-backend.env" });
 
 
 
