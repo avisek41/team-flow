@@ -250,6 +250,46 @@ async function seed() {
       }
     }
 
+    console.log("Seeding weather overlays...");
+    for (const [weatherId, weatherData] of Object.entries<any>(
+      data.weather_overlays || {}
+    )) {
+      await supabase.from("weather_overlays").upsert(
+        {
+          id: weatherId,
+          label: weatherData.label,
+          emoji: weatherData.emoji || null,
+          tone: weatherData.tone || null,
+          greeting_line1: weatherData.greeting_line1 || null,
+          greeting_line2: weatherData.greeting_line2 || null,
+          phase_sub: weatherData.phase_sub || null,
+          search_hint: weatherData.search_hint || null,
+          banner: weatherData.banner || null,
+          offer_chips: weatherData.offer_chips || [],
+          color_overrides: weatherData.color_overrides || null,
+        },
+        { onConflict: "id" }
+      );
+    }
+
+    console.log("Seeding city weather messages...");
+    for (const [cityId, messages] of Object.entries<any>(
+      data.city_weather_messages || {}
+    )) {
+      if (!(SUPPORTED_CITY_IDS as readonly string[]).includes(cityId)) continue;
+      for (const [weatherId, msg] of Object.entries<any>(messages)) {
+        await supabase.from("city_weather_messages").upsert(
+          {
+            city_id: cityId,
+            weather_id: weatherId,
+            line1: msg.line1,
+            line2: msg.line2,
+          },
+          { onConflict: "city_id, weather_id" }
+        );
+      }
+    }
+
     console.log("Seeding resolver config & metadata...");
     await supabase.from("resolver_configuration").upsert(
       {

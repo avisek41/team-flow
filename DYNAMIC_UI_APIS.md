@@ -220,4 +220,4 @@ npm run seed
 Uses `src/database/seed/dynamic_ui_seed.json`.
 
 Apply migration `src/database/migrations/003_festival_calendar_and_constraints.sql` once on existing DBs.
-Apply migration `src/database/migrations/004_city_image_url.sql` to add `cities.image_url` and seed city landmark images.
+Apply migration `src/database/migrations/005_weather_overlays.sql` then re-seed (`npm run seed`) so Rain / Heat / Cold change greetings, banners, chips, and colors.

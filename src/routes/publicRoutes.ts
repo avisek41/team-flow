@@ -7,6 +7,7 @@ import {
   getSalaryCycles,
   getFestivals,
   getAllData,
+  getWeather,
 } from "../controllers/publicController";
 import {
   getActiveCity,
@@ -23,6 +24,7 @@ router.get("/restaurants", getRestaurants);
 router.get("/day-phases", getDayPhases);
 router.get("/salary-cycles", getSalaryCycles);
 router.get("/festivals", getFestivals);
+router.get("/weather", getWeather);
 router.get("/all", getAllData);
 
 export default router;

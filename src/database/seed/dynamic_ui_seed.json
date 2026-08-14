@@ -1635,5 +1635,202 @@
         "hyderabad": "Happy Holi! Holi subhakankshalu"
       }
     }
+  },
+  "weather_overlays": {
+    "normal": {
+      "id": "normal",
+      "label": "Normal",
+      "emoji": "☁️",
+      "tone": "standard weather — city defaults",
+      "greeting_line1": null,
+      "greeting_line2": null,
+      "phase_sub": null,
+      "search_hint": null,
+      "banner": null,
+      "offer_chips": [],
+      "color_overrides": null
+    },
+    "rain": {
+      "id": "rain",
+      "label": "Rain",
+      "emoji": "🌧️",
+      "tone": "cozy monsoon — chai, pakora, comfort food",
+      "greeting_line1": "Barsaat aa gayi!",
+      "greeting_line2": "Hot chai + crispy snacks? 🌧️",
+      "phase_sub": "Monsoon mode — warm, crispy, delivered dry",
+      "search_hint": "Pakora, chai, maggi, soup khojo...",
+      "banner": {
+        "emoji": "🌧️",
+        "title": "Monsoon Specials",
+        "sub": "Chai, pakora & comfort bowls — rainy day picks",
+        "badge": "🌧️ RAIN MODE"
+      },
+      "offer_chips": [
+        "🌧️ Monsoon combos",
+        "☕ Free chai on ₹199+",
+        "🥟 Pakora platters",
+        "🍜 Hot soups"
+      ],
+      "color_overrides": {
+        "header_gradient": [
+          "#0d47a1",
+          "#1565c0",
+          "#42a5f5"
+        ],
+        "header_text": "#e3f2fd",
+        "status_bar": "#e3f2fd",
+        "background": "#e8f1fb"
+      }
+    },
+    "heatwave": {
+      "id": "heatwave",
+      "label": "Heat",
+      "emoji": "🥵",
+      "tone": "beat the heat — cold drinks, ice cream, light meals",
+      "greeting_line1": "Garmi zyada hai!",
+      "greeting_line2": "Cool down with something chilled 🧊",
+      "phase_sub": "Heat mode — cold, light, refreshing picks",
+      "search_hint": "Lassi, ice cream, juice, salads khojo...",
+      "banner": {
+        "emoji": "🥵",
+        "title": "Beat the Heat",
+        "sub": "Cold drinks, ice cream & light meals",
+        "badge": "🥵 HEAT MODE"
+      },
+      "offer_chips": [
+        "🧊 Cold drinks",
+        "🍦 Ice cream deals",
+        "🥗 Light meals",
+        "🥤 Lassi specials"
+      ],
+      "color_overrides": {
+        "header_gradient": [
+          "#e65100",
+          "#fb8c00",
+          "#ffcc80"
+        ],
+        "header_text": "#3e2723",
+        "status_bar": "#3e2723",
+        "background": "#fff8e1"
+      }
+    },
+    "cold": {
+      "id": "cold",
+      "label": "Cold",
+      "emoji": "❄️",
+      "tone": "winter warmers — soups, hot meals, chai",
+      "greeting_line1": "Thand pad rahi hai!",
+      "greeting_line2": "Something hot aur garam? 🍲",
+      "phase_sub": "Cold mode — soups, thalis & warm comfort",
+      "search_hint": "Soup, thali, chai, hot meals khojo...",
+      "banner": {
+        "emoji": "❄️",
+        "title": "Winter Warmers",
+        "sub": "Soups, hot thalis & steaming chai",
+        "badge": "❄️ COLD MODE"
+      },
+      "offer_chips": [
+        "🍲 Hot soups",
+        "☕ Cutting chai",
+        "🥗 Warm thalis",
+        "🍛 Comfort bowls"
+      ],
+      "color_overrides": {
+        "header_gradient": [
+          "#01579b",
+          "#0277bd",
+          "#4fc3f7"
+        ],
+        "header_text": "#ffffff",
+        "status_bar": "#ffffff",
+        "background": "#e1f5fe"
+      }
+    }
+  },
+  "city_weather_messages": {
+    "ahmedabad": {
+      "rain": {
+        "line1": "Varsad aavyo!",
+        "line2": "Bhajiya + cutting chai? 🌧️"
+      },
+      "heatwave": {
+        "line1": "Garmi vadhare!",
+        "line2": "Chaas / ice cream time 🧊"
+      },
+      "cold": {
+        "line1": "Thandi padeli!",
+        "line2": "Garam undhiyu / chai? 🍲"
+      }
+    },
+    "mumbai": {
+      "rain": {
+        "line1": "Mumbai monsoon on!",
+        "line2": "Vada pav + cutting chai? 🌧️"
+      },
+      "heatwave": {
+        "line1": "Baher garmi!",
+        "line2": "Cold coffee / falooda? 🧊"
+      },
+      "cold": {
+        "line1": "Thandi hava!",
+        "line2": "Garam misal / soup? 🍲"
+      }
+    },
+    "odisha": {
+      "rain": {
+        "line1": "Barsa asila!",
+        "line2": "Pakhal + something crispy? 🌧️"
+      },
+      "heatwave": {
+        "line1": "Garmi bahut!",
+        "line2": "Nadia pani / cold sweets 🧊"
+      },
+      "cold": {
+        "line1": "Thanda laguchi!",
+        "line2": "Garam dalma / chai? 🍲"
+      }
+    },
+    "delhi": {
+      "rain": {
+        "line1": "Dilli mein barsaat!",
+        "line2": "Samosa + chai scene? 🌧️"
+      },
+      "heatwave": {
+        "line1": "Loo chal rahi hai!",
+        "line2": "Lassi / kulfi le lo 🧊"
+      },
+      "cold": {
+        "line1": "Dilli ki sardi!",
+        "line2": "Garam parathe + chai 🍲"
+      }
+    },
+    "bengaluru": {
+      "rain": {
+        "line1": "Rain started!",
+        "line2": "Filter coffee + bonda? 🌧️"
+      },
+      "heatwave": {
+        "line1": "Too hot today!",
+        "line2": "Cold coffee / juice? 🧊"
+      },
+      "cold": {
+        "line1": "Chilly evening!",
+        "line2": "Hot soup / meals? 🍲"
+      }
+    },
+    "hyderabad": {
+      "rain": {
+        "line1": "Rain vachindi!",
+        "line2": "Irani chai + Osmania? 🌧️"
+      },
+      "heatwave": {
+        "line1": "Chala heat!",
+        "line2": "Cool drinks / ice cream 🧊"
+      },
+      "cold": {
+        "line1": "Chali ga undi!",
+        "line2": "Hot haleem / soup? 🍲"
+      }
+    }
   }
 }

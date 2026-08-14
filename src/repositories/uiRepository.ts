@@ -122,7 +122,7 @@ class UiRepository {
     return fest;
   }
 
-  async getFestivalById(festivalId: string) {
+    async getFestivalById(festivalId: string) {
     if (!festivalId || festivalId === "none") return null;
 
     const { data: fest, error } = await supabase
@@ -147,6 +147,29 @@ class UiRepository {
     fest.greetings = greetData || [];
 
     return fest;
+  }
+
+  async getWeatherOverlay(weatherId: string) {
+    const id = weatherId || "normal";
+    const { data, error } = await supabase
+      .from("weather_overlays")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
+  }
+
+  async getCityWeatherMessage(cityId: string, weatherId: string) {
+    if (!weatherId || weatherId === "normal") return null;
+    const { data, error } = await supabase
+      .from("city_weather_messages")
+      .select("line1, line2")
+      .eq("city_id", cityId)
+      .eq("weather_id", weatherId)
+      .maybeSingle();
+    if (error) throw error;
+    return data;
   }
 
   async getResolverConfig() {

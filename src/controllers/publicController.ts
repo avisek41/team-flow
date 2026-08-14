@@ -101,6 +101,16 @@ export const getFestivals = async (req: Request, res: Response) => {
   }
 };
 
+export const getWeather = async (_req: Request, res: Response) => {
+  try {
+    const { data, error } = await supabase.from("weather_overlays").select("*");
+    if (error) throw error;
+    res.status(200).json({ success: true, data });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 export const getAllData = async (req: Request, res: Response) => {
   try {
     const filter = cityFilter(req);

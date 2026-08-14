@@ -65,35 +65,47 @@ class UiService {
       );
     }
 
-    const weather = overrides?.weather || "normal";
+    const weatherId = overrides?.weather || "normal";
+    const weatherOverlay = await uiRepository.getWeatherOverlay(weatherId);
+    const cityWeatherMessage = await uiRepository.getCityWeatherMessage(
+      cityId,
+      weatherId
+    );
 
-    const mergedColors = this.mergeColors(cityConfig.city, currentPhase, currentFestival);
+    const mergedColors = this.mergeColors(
+      cityConfig.city,
+      currentPhase,
+      currentFestival,
+      weatherOverlay
+    );
     const mergedContent = this.mergeContent(
       cityConfig,
       currentPhase,
       currentSalaryCycle,
       currentFestival,
-      weather
+      weatherOverlay,
+      cityWeatherMessage
     );
 
     return {
-      theme_id: `${cityId}_${currentPhase?.id}_${currentSalaryCycle?.id}${
+      theme_id: `${cityId}_${currentPhase?.id}_${currentSalaryCycle?.id}_${weatherId}${
         currentFestival ? `_${currentFestival.id}` : ""
       }`,
       city: cityConfig.city,
       phase: currentPhase,
       salary: currentSalaryCycle,
       festival: currentFestival,
-      weather,
-      admin_context: overrides?.source === "admin_published"
-        ? {
-            city_id: cityId,
-            time_context: overrides.time_context,
-            weather: overrides.weather,
-            festival: overrides.festival,
-            salary_cycle: overrides.salary_cycle,
-          }
-        : null,
+      weather: weatherOverlay || { id: weatherId },
+      admin_context:
+        overrides?.source === "admin_published"
+          ? {
+              city_id: cityId,
+              time_context: overrides.time_context,
+              weather: overrides.weather,
+              festival: overrides.festival,
+              salary_cycle: overrides.salary_cycle,
+            }
+          : null,
       merged_colors: mergedColors,
       merged_content: mergedContent,
       cache_ttl_seconds: 3600,
@@ -182,11 +194,14 @@ class UiService {
     return cycles.find((c) => c.id === cycleId) || null;
   }
 
-  private mergeColors(city: any, phase: any, festival: any) {
+  private mergeColors(city: any, phase: any, festival: any, weather: any) {
     let colors = { ...(phase?.colors || {}) };
     colors.primary_accent = city.accent_color;
     colors.accent_light = city.accent_light;
 
+    if (weather?.color_overrides) {
+      colors = { ...colors, ...weather.color_overrides };
+    }
     if (festival?.color_overrides) {
       colors = { ...colors, ...festival.color_overrides };
     }
@@ -198,7 +213,8 @@ class UiService {
     phase: any,
     salary: any,
     festival: any,
-    weather = "normal"
+    weather: any,
+    cityWeatherMessage: any
   ) {
     const {
       city,
@@ -211,9 +227,22 @@ class UiService {
       restaurants,
     } = cityConfig;
 
+    const weatherId = weather?.id || "normal";
+
     const phaseGreeting = greetings.find((g: any) => g.phase_id === phase?.id) || {};
     let greeting_line1 = phaseGreeting.line1 || "";
     let greeting_line2 = phaseGreeting.line2 || "";
+
+    // Weather overrides city phase greetings (unless festival later overrides)
+    if (weatherId !== "normal") {
+      if (cityWeatherMessage?.line1) {
+        greeting_line1 = cityWeatherMessage.line1;
+        greeting_line2 = cityWeatherMessage.line2 || "";
+      } else if (weather?.greeting_line1) {
+        greeting_line1 = weather.greeting_line1;
+        greeting_line2 = weather.greeting_line2 || "";
+      }
+    }
 
     if (festival?.greetings?.length) {
       const festGreeting = festival.greetings.find((g: any) => g.city_id === city.id);
@@ -234,29 +263,60 @@ class UiService {
 
     let offerChips = phase?.default_offers || [];
     if (salary?.offer_chips?.length) offerChips = salary.offer_chips;
+    if (weatherId !== "normal" && weather?.offer_chips?.length) {
+      offerChips = weather.offer_chips;
+    }
     if (festival?.offer_chips?.length) offerChips = festival.offer_chips;
 
-    const mainBanner = festival?.banner || salary?.banner || {};
+    let phase_sub = phase?.phase_sub || null;
+    if (weatherId !== "normal" && weather?.phase_sub) {
+      phase_sub = weather.phase_sub;
+    }
+
+    let search_placeholder = city.search_placeholder;
+    if (weatherId !== "normal" && weather?.search_hint) {
+      search_placeholder = weather.search_hint;
+    }
+
+    const weatherBanner =
+      weatherId !== "normal" && weather?.banner ? weather.banner : null;
+    const mainBanner = festival?.banner || weatherBanner || salary?.banner || {};
+
+    // Soft-adjust UI labels section titles for weather modes
+    let labels = uiLabels ? { ...uiLabels } : null;
+    if (labels && weatherId === "rain") {
+      labels.offers_section = "Monsoon Offers";
+      labels.trending_section = "🌧️ Rainy favourites";
+    } else if (labels && weatherId === "heatwave") {
+      labels.offers_section = "Cooling Deals";
+      labels.trending_section = "🥵 Cool picks";
+    } else if (labels && weatherId === "cold") {
+      labels.offers_section = "Warming Offers";
+      labels.trending_section = "❄️ Hot favourites";
+    }
 
     return {
       greeting_line1,
       greeting_line2,
       tagline: city.language_tagline,
-      search_placeholder: city.search_placeholder,
+      search_placeholder,
       salary_message: salMessage ? salMessage.message : null,
-      weather,
-      weather_icon: phase?.weather_icon,
+      weather: weatherId,
+      weather_label: weather?.label || weatherId,
+      weather_emoji: weather?.emoji || null,
+      weather_icon: weather?.emoji || phase?.weather_icon,
       phase_label: phase?.phase_label,
-      phase_sub: phase?.phase_sub,
+      phase_sub,
       salary_banner: salary?.banner || null,
       festival_banner: festival?.banner || null,
+      weather_banner: weatherBanner,
       main_banner: mainBanner,
       local_spotlight: spotlight || null,
       categories: phaseCategories,
       trending_tags: (trendingTags || []).map((t: any) => t.tag_name),
       offer_chips: offerChips,
       restaurants: restaurants || [],
-      ui_labels: uiLabels,
+      ui_labels: labels,
     };
   }
 }

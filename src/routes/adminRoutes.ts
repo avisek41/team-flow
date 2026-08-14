@@ -40,6 +40,8 @@ const resources = [
   { path: "/festivals", table: "festival_overlays" },
   { path: "/festival-categories", table: "festival_categories" },
   { path: "/festival-greetings", table: "festival_greetings" },
+  { path: "/weather", table: "weather_overlays" },
+  { path: "/weather-messages", table: "city_weather_messages" },
 ];
 
 resources.forEach((r) => {
