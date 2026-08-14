@@ -27,9 +27,10 @@ Admin sets **all** Studio signals, then clicks **Publish Experience**:
 
 ### Admin publish
 
+No auth required for publish.
+
 ```http
 PUT /admin/v1/active-experience
-Authorization: Bearer <ADMIN_SECRET_TOKEN>
 Content-Type: application/json
 
 {
@@ -168,7 +169,17 @@ GET /api/v1/ui-config?city_id=delhi&client_time=2026-08-13T17:00:00+05:30&day_of
 
 ## Admin APIs (Dynamic Experience Studio)
 
-All require: `Authorization: Bearer <ADMIN_SECRET_TOKEN>`
+### Publish (no auth)
+
+| Method | Path |
+|--------|------|
+| `PUT` / `POST` | `/admin/v1/active-experience` |
+| `GET` | `/admin/v1/active-experience` |
+| `PUT` / `POST` / `GET` | `/admin/v1/active-city` (alias) |
+
+### Content CRUD (requires auth)
+
+`Authorization: Bearer <ADMIN_SECRET_TOKEN>`
 
 Resources (GET list + POST + PUT/PATCH + DELETE):
 

@@ -14,8 +14,7 @@ import {
 
 const router = Router();
 
-router.use(adminAuth);
-
+// Publish experience — NO auth (dashboard can publish without token)
 router.get("/active-city", getActiveExperience);
 router.put("/active-city", setActiveCity);
 router.post("/active-city", setActiveCity);
@@ -23,6 +22,9 @@ router.post("/active-city", setActiveCity);
 router.get("/active-experience", getActiveExperience);
 router.put("/active-experience", setActiveExperience);
 router.post("/active-experience", setActiveExperience);
+
+// Remaining admin CRUD still requires Bearer token
+router.use(adminAuth);
 
 const resources = [
   { path: "/cities", table: "cities" },
