@@ -7,7 +7,7 @@ import {
   type PublishedExperience,
 } from "../constants/experience";
 
-export async function readPublishedExperience(): Promise<PublishedExperience | null> {
+export async function readPublishedExperience(): Promise<PublishedExperience> {
   const { data, error } = await supabase
     .from("system_metadata")
     .select("key, value")
