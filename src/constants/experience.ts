@@ -97,10 +97,14 @@ export function mapStudioFestival(value: string): FestivalOverrideId | null {
   return map[value] ?? null;
 }
 
-export function toPublicExperience(value: PublishedExperience) {
+export function toPublicExperience(
+  value: PublishedExperience,
+  extras?: { image_url?: string | null }
+) {
   return {
     city_id: value.city_id,
     display_name: SUPPORTED_CITY_LABELS[value.city_id],
+    image_url: extras?.image_url ?? null,
     time_context: value.time_context,
     weather: value.weather,
     festival: value.festival,

@@ -17,9 +17,15 @@ export const getActiveExperience = async (_req: Request, res: Response) => {
   try {
     const active = await readPublishedExperience();
 
+    const { data: city } = await supabase
+      .from("cities")
+      .select("image_url")
+      .eq("id", active.city_id)
+      .maybeSingle();
+
     return res.status(200).json({
       success: true,
-      data: toPublicExperience(active),
+      data: toPublicExperience(active, { image_url: city?.image_url ?? null }),
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -91,7 +97,7 @@ export const setActiveExperience = async (req: Request, res: Response) => {
 
     const { data: city, error: cityError } = await supabase
       .from("cities")
-      .select("id, display_name")
+      .select("id, display_name, image_url")
       .eq("id", cityId)
       .maybeSingle();
 
@@ -138,7 +144,7 @@ export const setActiveExperience = async (req: Request, res: Response) => {
     return res.status(200).json({
       success: true,
       message: `Experience published for ${city.display_name}`,
-      data: toPublicExperience(payload),
+      data: toPublicExperience(payload, { image_url: city.image_url ?? null }),
     });
   } catch (error: any) {
     return res.status(500).json({
