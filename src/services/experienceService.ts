@@ -34,5 +34,14 @@ export async function readPublishedExperience(): Promise<PublishedExperience | n
     };
   }
 
-  return null;
+  // Default when admin has not published yet
+  return {
+    city_id: "ahmedabad",
+    time_context: "morning",
+    weather: "normal",
+    festival: "none",
+    salary_cycle: "normal",
+    published_at: new Date().toISOString(),
+    published_by: "system_default",
+  };
 }

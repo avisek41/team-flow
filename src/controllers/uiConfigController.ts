@@ -23,15 +23,6 @@ async function resolveTheme(req: Request, res: Response, forcePublished: boolean
 
     if (usePublished) {
       const published = await readPublishedExperience();
-      if (!published) {
-        return res.status(404).json({
-          success: false,
-          code: "ACTIVE_EXPERIENCE_NOT_SET",
-          message:
-            "No experience published by admin yet. Publish from Dynamic Experience Studio.",
-          data: null,
-        });
-      }
       cityId = published.city_id;
       overrides = {
         time_context: published.time_context,

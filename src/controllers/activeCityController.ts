@@ -17,16 +17,6 @@ export const getActiveExperience = async (_req: Request, res: Response) => {
   try {
     const active = await readPublishedExperience();
 
-    if (!active) {
-      return res.status(404).json({
-        success: false,
-        code: "ACTIVE_EXPERIENCE_NOT_SET",
-        message:
-          "No experience has been published by admin yet. Publish Location + signals from Dynamic Experience Studio.",
-        data: null,
-      });
-    }
-
     return res.status(200).json({
       success: true,
       data: toPublicExperience(active),

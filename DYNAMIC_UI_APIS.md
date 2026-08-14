@@ -88,6 +88,16 @@ GET /api/v1/ui-config?city_id=mumbai&time_context=morning&weather=rain&festival=
 
 `GET /api/v1/public/active-city` still works and now returns the **full** experience object (same as `active-experience`).
 
+### Defaults (when admin has not published)
+
+| Signal | Default |
+|--------|---------|
+| Location | `ahmedabad` |
+| Time Context | `morning` |
+| Weather | `normal` |
+| Festival | `none` |
+| Salary Cycle | `normal` |
+
 ---
 
 ## Mobile App (Primary Endpoint)
