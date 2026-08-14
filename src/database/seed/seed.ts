@@ -53,6 +53,7 @@ async function seed() {
         language_style: cityData.language.style,
         language_tagline: cityData.language.tagline,
         search_placeholder: cityData.language.search_placeholder,
+        image_url: cityData.image_url || null,
       };
 
       const { error: cityErr } = await supabase

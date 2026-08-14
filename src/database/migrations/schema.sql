@@ -13,6 +13,7 @@ CREATE TABLE cities (
     language_style VARCHAR(255),
     language_tagline VARCHAR(255),
     search_placeholder VARCHAR(255),
+    image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
