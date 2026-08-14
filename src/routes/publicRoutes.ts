@@ -8,10 +8,12 @@ import {
     getFestivals,
     getAllData
 } from '../controllers/publicController';
+import { getActiveCity } from '../controllers/activeCityController';
 
 const router = Router();
 
 router.get('/cities', getCities);
+router.get('/active-city', getActiveCity);
 router.get('/categories', getCategories);
 router.get('/restaurants', getRestaurants);
 router.get('/day-phases', getDayPhases);

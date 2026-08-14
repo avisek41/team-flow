@@ -15,6 +15,52 @@ Architecture: **React Native → Express → Supabase**. Mobile never talks to P
 
 ---
 
+## Mobile App — Detect admin-published city
+
+Admin selects a city in Dynamic Experience Studio and clicks **Publish Experience**.
+That saves the active city for mobile.
+
+### 1. Detect city (mobile)
+
+```http
+GET /api/v1/public/active-city
+```
+
+Success:
+
+```json
+{
+  "success": true,
+  "data": {
+    "city_id": "mumbai",
+    "display_name": "Mumbai, Maharashtra",
+    "published_at": "2026-08-14T06:00:00.000Z"
+  }
+}
+```
+
+If admin has not published yet → `404` `ACTIVE_CITY_NOT_SET`.
+
+### 2. Load that city’s UI
+
+```http
+GET /api/v1/ui-config?city_id=mumbai
+```
+
+Use `data.city_id` from step 1.
+
+### Admin publish
+
+```http
+PUT /admin/v1/active-city
+Authorization: Bearer <ADMIN_SECRET_TOKEN>
+Content-Type: application/json
+
+{ "city_id": "mumbai" }
+```
+
+---
+
 ## Mobile App (Primary Endpoint)
 
 `GET /api/v1/ui-config`
@@ -64,6 +110,7 @@ GET /api/v1/ui-config?city_id=delhi&client_time=2026-08-13T17:00:00+05:30&day_of
 
 ## Public Resource APIs (Read-Only)
 
+- `GET /api/v1/public/active-city` — **city published by admin** (mobile should call this first)
 - `GET /api/v1/public/cities` — only the 6 supported cities
 - `GET /api/v1/public/categories?city_id=`
 - `GET /api/v1/public/restaurants?city_id=`
