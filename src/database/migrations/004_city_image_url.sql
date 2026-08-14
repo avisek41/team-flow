@@ -16,3 +16,6 @@ WHERE id = 'odisha';
 
 UPDATE cities SET image_url = 'https://images.unsplash.com/photo-1588416936097-41850ab3d86d?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8YmVuZ2FsdXJ1fGVufDB8fDB8fHww'
 WHERE id = 'bengaluru';
+
+UPDATE cities SET image_url = 'https://images.unsplash.com/photo-1705077171489-b5dfcf144676?w=900&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8aW5kaWElMjBnYXRlfGVufDB8fDB8fHww'
+WHERE id = 'delhi';
