@@ -13,7 +13,18 @@ export class CityConfigMissingError extends Error {
 }
 
 class UiService {
-  async resolveUiTheme(cityId: string, clientTime: string, dayOfMonth: number) {
+  async resolveUiTheme(
+    cityId: string,
+    clientTime: string,
+    dayOfMonth: number,
+    overrides?: {
+      time_context?: string;
+      salary_cycle?: string;
+      festival?: string;
+      weather?: string;
+      source?: "admin_published" | "client";
+    }
+  ) {
     const cityConfig = await uiRepository.getCityConfig(cityId);
     if (!cityConfig || !cityConfig.city) {
       throw new CityConfigMissingError(cityId, ["city row not found"]);
@@ -26,19 +37,43 @@ class UiService {
 
     const dayPhases = await uiRepository.getDayPhases();
     const salaryCycles = await uiRepository.getSalaryCycles();
-    const currentPhase = this.determinePhase(this.extractTime(clientTime), dayPhases);
-    const currentSalaryCycle = this.determineSalaryCycle(dayOfMonth, salaryCycles);
-    const currentFestival = await uiRepository.getActiveFestivalForCity(
-      cityId,
-      this.extractDate(clientTime)
-    );
+
+    let currentPhase = this.determinePhase(this.extractTime(clientTime), dayPhases);
+    if (overrides?.time_context) {
+      currentPhase =
+        dayPhases.find((p: any) => p.id === overrides.time_context) || currentPhase;
+    }
+
+    let currentSalaryCycle = this.determineSalaryCycle(dayOfMonth, salaryCycles);
+    if (overrides?.salary_cycle) {
+      currentSalaryCycle =
+        salaryCycles.find((c: any) => c.id === overrides.salary_cycle) ||
+        currentSalaryCycle;
+    }
+
+    let currentFestival: any = null;
+    if (overrides?.festival !== undefined) {
+      if (overrides.festival === "none" || !overrides.festival) {
+        currentFestival = null;
+      } else {
+        currentFestival = await uiRepository.getFestivalById(overrides.festival);
+      }
+    } else {
+      currentFestival = await uiRepository.getActiveFestivalForCity(
+        cityId,
+        this.extractDate(clientTime)
+      );
+    }
+
+    const weather = overrides?.weather || "normal";
 
     const mergedColors = this.mergeColors(cityConfig.city, currentPhase, currentFestival);
     const mergedContent = this.mergeContent(
       cityConfig,
       currentPhase,
       currentSalaryCycle,
-      currentFestival
+      currentFestival,
+      weather
     );
 
     return {
@@ -49,10 +84,20 @@ class UiService {
       phase: currentPhase,
       salary: currentSalaryCycle,
       festival: currentFestival,
+      weather,
+      admin_context: overrides?.source === "admin_published"
+        ? {
+            city_id: cityId,
+            time_context: overrides.time_context,
+            weather: overrides.weather,
+            festival: overrides.festival,
+            salary_cycle: overrides.salary_cycle,
+          }
+        : null,
       merged_colors: mergedColors,
       merged_content: mergedContent,
       cache_ttl_seconds: 3600,
-      refresh_on_hour: true,
+      refresh_on_hour: overrides?.source !== "admin_published",
     };
   }
 
@@ -148,7 +193,13 @@ class UiService {
     return colors;
   }
 
-  private mergeContent(cityConfig: any, phase: any, salary: any, festival: any) {
+  private mergeContent(
+    cityConfig: any,
+    phase: any,
+    salary: any,
+    festival: any,
+    weather = "normal"
+  ) {
     const {
       city,
       greetings,
@@ -193,6 +244,7 @@ class UiService {
       tagline: city.language_tagline,
       search_placeholder: city.search_placeholder,
       salary_message: salMessage ? salMessage.message : null,
+      weather,
       weather_icon: phase?.weather_icon,
       phase_label: phase?.phase_label,
       phase_sub: phase?.phase_sub,

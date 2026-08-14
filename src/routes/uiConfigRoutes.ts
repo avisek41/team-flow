@@ -1,8 +1,9 @@
-import { Router } from 'express';
-import { getUiTheme } from '../controllers/uiConfigController';
+import { Router } from "express";
+import { getUiTheme, getPublishedUiTheme } from "../controllers/uiConfigController";
 
 const router = Router();
 
-router.get('/', getUiTheme);
+router.get("/published", getPublishedUiTheme);
+router.get("/", getUiTheme);
 
 export default router;

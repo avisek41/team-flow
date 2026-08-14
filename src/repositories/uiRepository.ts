@@ -122,6 +122,33 @@ class UiRepository {
     return fest;
   }
 
+  async getFestivalById(festivalId: string) {
+    if (!festivalId || festivalId === "none") return null;
+
+    const { data: fest, error } = await supabase
+      .from("festival_overlays")
+      .select("*")
+      .eq("id", festivalId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!fest) return null;
+
+    const { data: catData } = await supabase
+      .from("festival_categories")
+      .select("*")
+      .eq("festival_id", fest.id)
+      .order("display_order");
+    fest.categories = catData || [];
+
+    const { data: greetData } = await supabase
+      .from("festival_greetings")
+      .select("*")
+      .eq("festival_id", fest.id);
+    fest.greetings = greetData || [];
+
+    return fest;
+  }
+
   async getResolverConfig() {
     const { data, error } = await supabase
       .from("resolver_configuration")

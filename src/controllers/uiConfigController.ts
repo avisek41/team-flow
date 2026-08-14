@@ -1,10 +1,54 @@
 import { Request, Response } from "express";
 import { isSupportedCityId } from "../constants/cities";
 import uiService, { CityConfigMissingError } from "../services/uiService";
+import { readPublishedExperience } from "../services/experienceService";
 
-export const getUiTheme = async (req: Request, res: Response) => {
+async function resolveTheme(req: Request, res: Response, forcePublished: boolean) {
   try {
-    const cityId = req.query.city_id as string | undefined;
+    const usePublished =
+      forcePublished ||
+      req.query.use_published === "1" ||
+      req.query.use_published === "true";
+
+    let cityId = req.query.city_id as string | undefined;
+    let overrides:
+      | {
+          time_context?: string;
+          salary_cycle?: string;
+          festival?: string;
+          weather?: string;
+          source?: "admin_published" | "client";
+        }
+      | undefined;
+
+    if (usePublished) {
+      const published = await readPublishedExperience();
+      if (!published) {
+        return res.status(404).json({
+          success: false,
+          code: "ACTIVE_EXPERIENCE_NOT_SET",
+          message:
+            "No experience published by admin yet. Publish from Dynamic Experience Studio.",
+          data: null,
+        });
+      }
+      cityId = published.city_id;
+      overrides = {
+        time_context: published.time_context,
+        salary_cycle: published.salary_cycle,
+        festival: published.festival,
+        weather: published.weather,
+        source: "admin_published",
+      };
+    } else {
+      overrides = {
+        time_context: req.query.time_context as string | undefined,
+        salary_cycle: req.query.salary_cycle as string | undefined,
+        festival: req.query.festival as string | undefined,
+        weather: (req.query.weather as string | undefined) || undefined,
+        source: "client",
+      };
+    }
 
     if (!cityId || !cityId.trim()) {
       return res.status(400).json({
@@ -42,7 +86,8 @@ export const getUiTheme = async (req: Request, res: Response) => {
     const themeData = await uiService.resolveUiTheme(
       cityId,
       clientTime,
-      dayOfMonth
+      dayOfMonth,
+      overrides
     );
 
     return res.status(200).json({
@@ -69,4 +114,11 @@ export const getUiTheme = async (req: Request, res: Response) => {
       data: null,
     });
   }
-};
+}
+
+export const getUiTheme = async (req: Request, res: Response) =>
+  resolveTheme(req, res, false);
+
+/** Uses only admin-published Location + Time + Weather + Festival + Salary */
+export const getPublishedUiTheme = async (req: Request, res: Response) =>
+  resolveTheme(req, res, true);

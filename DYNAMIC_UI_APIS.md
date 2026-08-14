@@ -15,18 +15,55 @@ Architecture: **React Native → Express → Supabase**. Mobile never talks to P
 
 ---
 
-## Mobile App — Detect admin-published city
+## Mobile App — Admin-published experience (recommended)
 
-Admin selects a city in Dynamic Experience Studio and clicks **Publish Experience**.
-That saves the active city for mobile.
+Admin sets **all** Studio signals, then clicks **Publish Experience**:
 
-### 1. Detect city (mobile)
+- Location (`city_id`)
+- Time Context (`time_context`)
+- Weather (`weather`)
+- Festival Preview Override (`festival`)
+- Salary Cycle (`salary_cycle`)
+
+### Admin publish
 
 ```http
-GET /api/v1/public/active-city
+PUT /admin/v1/active-experience
+Authorization: Bearer <ADMIN_SECRET_TOKEN>
+Content-Type: application/json
+
+{
+  "city_id": "mumbai",
+  "time_context": "morning",
+  "weather": "rain",
+  "festival": "diwali",
+  "salary_cycle": "premium"
+}
 ```
 
-Success:
+Allowed values:
+
+| Field | Values |
+|-------|--------|
+| `city_id` | `ahmedabad`, `mumbai`, `odisha`, `delhi`, `bengaluru`, `hyderabad` |
+| `time_context` | `morning`, `afternoon`, `evening`, `night` |
+| `weather` | `normal`, `rain`, `heatwave`, `cold` |
+| `festival` | `none`, `diwali`, `holi`, `navratri`, `christmas`, `eid` |
+| `salary_cycle` | `premium`, `normal`, `savings` |
+
+### Mobile — Option A (one call, simplest)
+
+```http
+GET /api/v1/ui-config/published
+```
+
+Uses the admin-published Location + Time + Weather + Festival + Salary automatically.
+
+### Mobile — Option B (two calls)
+
+```http
+GET /api/v1/public/active-experience
+```
 
 ```json
 {
@@ -34,30 +71,22 @@ Success:
   "data": {
     "city_id": "mumbai",
     "display_name": "Mumbai, Maharashtra",
-    "published_at": "2026-08-14T06:00:00.000Z"
+    "time_context": "morning",
+    "weather": "rain",
+    "festival": "diwali",
+    "salary_cycle": "premium",
+    "published_at": "..."
   }
 }
 ```
 
-If admin has not published yet → `404` `ACTIVE_CITY_NOT_SET`.
-
-### 2. Load that city’s UI
+Then:
 
 ```http
-GET /api/v1/ui-config?city_id=mumbai
+GET /api/v1/ui-config?city_id=mumbai&time_context=morning&weather=rain&festival=diwali&salary_cycle=premium
 ```
 
-Use `data.city_id` from step 1.
-
-### Admin publish
-
-```http
-PUT /admin/v1/active-city
-Authorization: Bearer <ADMIN_SECRET_TOKEN>
-Content-Type: application/json
-
-{ "city_id": "mumbai" }
-```
+`GET /api/v1/public/active-city` still works and now returns the **full** experience object (same as `active-experience`).
 
 ---
 
@@ -69,9 +98,14 @@ Content-Type: application/json
 
 | Param | Required | Notes |
 |-------|----------|-------|
-| `city_id` | **Yes** | Must be one of the 6 supported IDs. **No default city.** |
-| `client_time` | No | ISO timestamp used for day-phase + festival calendar date |
-| `day_of_month` | No | 1–31; salary cycle if omitted uses date from `client_time` / now |
+| `city_id` | **Yes*** | Required unless calling `/ui-config/published` |
+| `time_context` | No | Admin/manual override: `morning` \| `afternoon` \| `evening` \| `night` |
+| `weather` | No | `normal` \| `rain` \| `heatwave` \| `cold` |
+| `festival` | No | `none` \| `diwali` \| `holi` \| … (overrides calendar) |
+| `salary_cycle` | No | `premium` \| `normal` \| `savings` (overrides day-of-month) |
+| `client_time` | No | Used only when phase/festival not overridden |
+| `day_of_month` | No | Used only when salary not overridden |
+| `use_published` | No | `true` / `1` — same as `/ui-config/published` |
 
 ### Salary cycle (fixed)
 
@@ -110,7 +144,8 @@ GET /api/v1/ui-config?city_id=delhi&client_time=2026-08-13T17:00:00+05:30&day_of
 
 ## Public Resource APIs (Read-Only)
 
-- `GET /api/v1/public/active-city` — **city published by admin** (mobile should call this first)
+- `GET /api/v1/public/active-experience` — **admin-published Location + Time + Weather + Festival + Salary**
+- `GET /api/v1/public/active-city` — alias of active-experience
 - `GET /api/v1/public/cities` — only the 6 supported cities
 - `GET /api/v1/public/categories?city_id=`
 - `GET /api/v1/public/restaurants?city_id=`

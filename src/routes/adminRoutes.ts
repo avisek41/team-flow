@@ -6,16 +6,23 @@ import {
   deleteResource,
   listResource,
 } from "../controllers/adminController";
-import { setActiveCity, getActiveCity } from "../controllers/activeCityController";
+import {
+  setActiveCity,
+  setActiveExperience,
+  getActiveExperience,
+} from "../controllers/activeCityController";
 
 const router = Router();
 
 router.use(adminAuth);
 
-// Published city for mobile app to detect
-router.get("/active-city", getActiveCity);
+router.get("/active-city", getActiveExperience);
 router.put("/active-city", setActiveCity);
 router.post("/active-city", setActiveCity);
+
+router.get("/active-experience", getActiveExperience);
+router.put("/active-experience", setActiveExperience);
+router.post("/active-experience", setActiveExperience);
 
 const resources = [
   { path: "/cities", table: "cities" },

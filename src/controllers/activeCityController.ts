@@ -1,52 +1,35 @@
 import { Request, Response } from "express";
 import supabase from "../config/supabase";
-import { isSupportedCityId, SUPPORTED_CITY_LABELS } from "../constants/cities";
+import { isSupportedCityId } from "../constants/cities";
+import {
+  ACTIVE_CITY_KEY,
+  ACTIVE_EXPERIENCE_KEY,
+  isFestivalOverrideId,
+  isSalaryCycleId,
+  isTimeContextId,
+  isWeatherId,
+  toPublicExperience,
+  type PublishedExperience,
+} from "../constants/experience";
+import { readPublishedExperience } from "../services/experienceService";
 
-const ACTIVE_CITY_KEY = "active_city";
-
-type ActiveCityValue = {
-  city_id: string;
-  published_at: string;
-  published_by?: string;
-};
-
-async function readActiveCity(): Promise<ActiveCityValue | null> {
-  const { data, error } = await supabase
-    .from("system_metadata")
-    .select("value")
-    .eq("key", ACTIVE_CITY_KEY)
-    .maybeSingle();
-
-  if (error) throw error;
-  if (!data?.value) return null;
-
-  const value = data.value as ActiveCityValue;
-  if (!value.city_id || !isSupportedCityId(value.city_id)) return null;
-  return value;
-}
-
-/** Mobile: detect which city admin published */
-export const getActiveCity = async (_req: Request, res: Response) => {
+export const getActiveExperience = async (_req: Request, res: Response) => {
   try {
-    const active = await readActiveCity();
+    const active = await readPublishedExperience();
 
     if (!active) {
       return res.status(404).json({
         success: false,
-        code: "ACTIVE_CITY_NOT_SET",
+        code: "ACTIVE_EXPERIENCE_NOT_SET",
         message:
-          "No active city has been published by admin yet. Publish a city from Dynamic Experience Studio.",
+          "No experience has been published by admin yet. Publish Location + signals from Dynamic Experience Studio.",
         data: null,
       });
     }
 
     return res.status(200).json({
       success: true,
-      data: {
-        city_id: active.city_id,
-        display_name: SUPPORTED_CITY_LABELS[active.city_id],
-        published_at: active.published_at,
-      },
+      data: toPublicExperience(active),
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -57,16 +40,22 @@ export const getActiveCity = async (_req: Request, res: Response) => {
   }
 };
 
-/** Admin: save/publish selected city for mobile to consume */
-export const setActiveCity = async (req: Request, res: Response) => {
+/** @deprecated alias — returns full experience */
+export const getActiveCity = getActiveExperience;
+
+export const setActiveExperience = async (req: Request, res: Response) => {
   try {
     const cityId = req.body?.city_id as string | undefined;
+    const timeContext = String(req.body?.time_context || "").toLowerCase();
+    const weather = String(req.body?.weather || "").toLowerCase();
+    const festival = String(req.body?.festival || "none").toLowerCase();
+    const salaryCycle = String(req.body?.salary_cycle || "").toLowerCase();
 
-    if (!cityId || !cityId.trim()) {
+    if (!cityId?.trim()) {
       return res.status(400).json({
         success: false,
         code: "CITY_ID_REQUIRED",
-        message: "city_id is required. Select a city before publishing.",
+        message: "city_id (Location) is required before publishing.",
       });
     }
 
@@ -75,6 +64,38 @@ export const setActiveCity = async (req: Request, res: Response) => {
         success: false,
         code: "CITY_ID_UNSUPPORTED",
         message: `Unsupported city_id '${cityId}'.`,
+      });
+    }
+
+    if (!isTimeContextId(timeContext)) {
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_TIME_CONTEXT",
+        message: "time_context must be one of: morning, afternoon, evening, night",
+      });
+    }
+
+    if (!isWeatherId(weather)) {
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_WEATHER",
+        message: "weather must be one of: normal, rain, heatwave, cold",
+      });
+    }
+
+    if (!isFestivalOverrideId(festival)) {
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_FESTIVAL",
+        message: "festival must be one of: none, diwali, holi, navratri, christmas, eid",
+      });
+    }
+
+    if (!isSalaryCycleId(salaryCycle)) {
+      return res.status(400).json({
+        success: false,
+        code: "INVALID_SALARY_CYCLE",
+        message: "salary_cycle must be one of: premium, normal, savings",
       });
     }
 
@@ -93,35 +114,41 @@ export const setActiveCity = async (req: Request, res: Response) => {
       });
     }
 
-    const payload: ActiveCityValue = {
+    const payload: PublishedExperience = {
       city_id: cityId,
+      time_context: timeContext,
+      weather,
+      festival,
+      salary_cycle: salaryCycle,
       published_at: new Date().toISOString(),
       published_by: "admin",
     };
 
-    const { data, error } = await supabase
-      .from("system_metadata")
-      .upsert(
-        {
-          key: ACTIVE_CITY_KEY,
-          value: payload,
-        },
-        { onConflict: "key" }
-      )
-      .select()
-      .maybeSingle();
-
+    const { error } = await supabase.from("system_metadata").upsert(
+      {
+        key: ACTIVE_EXPERIENCE_KEY,
+        value: payload,
+      },
+      { onConflict: "key" }
+    );
     if (error) throw error;
+
+    await supabase.from("system_metadata").upsert(
+      {
+        key: ACTIVE_CITY_KEY,
+        value: {
+          city_id: cityId,
+          published_at: payload.published_at,
+          published_by: "admin",
+        },
+      },
+      { onConflict: "key" }
+    );
 
     return res.status(200).json({
       success: true,
-      message: `Active city published: ${city.display_name}`,
-      data: {
-        city_id: cityId,
-        display_name: city.display_name,
-        published_at: payload.published_at,
-        metadata: data,
-      },
+      message: `Experience published for ${city.display_name}`,
+      data: toPublicExperience(payload),
     });
   } catch (error: any) {
     return res.status(500).json({
@@ -130,3 +157,5 @@ export const setActiveCity = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const setActiveCity = setActiveExperience;
